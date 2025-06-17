@@ -1,17 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from api.core.database import Base
-
-
-class Roles(Base):
-    __tablename__ = "roles"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-
-    # __table_args__ = (Constraint("nombre IN ('vendedor', 'repositor')", name="valid_roles"))
-
-    usuarios = relationship("Usuarios", back_populates="roles")
 
 
 class Usuarios(Base):
@@ -21,9 +10,47 @@ class Usuarios(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     password = Column(String)
-    registry_date = Column(DateTime)
-    rol_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"))
-    rol = relationship("Roles", back_populates="usuarios")
+
+    direccion = relationship("Direcciones", back_populates="usuario")
+    carrito = relationship("Carrito", back_populates="usuario")
+    pedido = relationship("Pedidos", back_populates="usuario")
+
+
+class DireccionesEnvio(Base):
+    __tablename__ = "direccionesEnvio"
+
+    id = Column(Integer, primary_key=True, index=True)
+    address = Column(String)
+    city = Column(String)
+    zip_code = Column(String)
+    user_id = Column(Integer, ForeignKey("usuarios.id"))
+
+    usuario = relationship("Usuarios", back_populates="direccion")
+    pedido = relationship("Pedidos", back_populates="direccion")
+
+
+class Carrito(Base):
+    __tablename__ = "carrito"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("usuarios.id"))
+    time_tamptz = Column(DateTime)
+
+    usuario = relationship("Usuarios", back_populates="carrito")
+    carrito_detalle = relationship("CarritoDetalle", back_populates="carrito")
+
+
+class CarritoDetalle(Base):
+    __tablename__ = "carritoDetalle"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quantity = Column(Integer)
+    price = Column(Float)
+    cart_id = Column(Integer, ForeignKey("carrito.id"))
+    product_id = Column(Integer, ForeignKey("productos.id"))
+
+    carrito = relationship("Carrito", back_populates="carrito_detalle")
+    producto = relationship("Productos", back_populates="carrito_detalle")
 
 
 class Productos(Base):
@@ -36,7 +63,9 @@ class Productos(Base):
     stock = Column(Integer)
     category_id = Column(Integer, ForeignKey("categorias.id"))
 
-    category = relationship("Categorias")
+    categoria = relationship("Categorias", back_populates="producto")
+    carrito_detalle = relationship("CarritoDetalle", back_populates="producto")
+    pedido_detalle = relationship("PedidoDetalle", back_populates="producto")
 
 
 class Categorias(Base):
@@ -45,27 +74,55 @@ class Categorias(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
 
+    producto = relationship("Productos", back_populates="categoria")
 
-class Comprobantes(Base):
-    __tablename__ = "comprobantes"
+
+class PedidoDetalle(Base):
+    __tablename__ = "pedidoDetalle"
 
     id = Column(Integer, primary_key=True, index=True)
-    tipo = Column(String)
-    fecha = Column(DateTime)
-    number = Column(Integer)
-    description = Column(String)
+    quantity = Column(Integer)
+    price = Column(Float)
+    order_id = Column(Integer, ForeignKey("pedidos.id"))
+    product_id = Column(Integer, ForeignKey("productos.id"))
 
-class Movimientos(Base):
-    __tablename__ = "movimientos"
+    pedido = relationship("Pedidos", back_populates="pedido_detalle")
+    producto = relationship("Productos", back_populates="pedido_detalle")
 
+
+class Pedidos(Base):
+    __tablename__ = "pedidos"
+    
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime)
-    quantity = Column(Integer)
-    product_id = Column(Integer, ForeignKey("productos.id"))
+    total = Column(Float)
+    status = Column(Integer)
     user_id = Column(Integer, ForeignKey("usuarios.id"))
-    comprobante_id = Column(Integer, ForeignKey("comprobantes.id"))
+    address_id = Column(Integer, ForeignKey("direccionesEnvio.id"))
 
-    product = relationship("Productos")
-    user = relationship("Usuarios")
-    comprobante = relationship("Comprobantes")
+    usuario = relationship("Usuarios", back_populates="pedido")
+    pedido_detalle = relationship("PedidoDetalle", back_populates="pedido")
+    direccion = relationship("DireccionesEnvio", back_populates="pedido")
+    pago = relationship("Pagos", back_populates="pedido")
 
+
+class Pagos(Base):
+    __tablename__ = "pagos"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(DateTime)
+    amount = Column(Float)
+    status = Column(Integer)
+    order_id = Column(Integer, ForeignKey("pedidos.id"))
+    payment_method = Column(String, ForeignKey("metodosPago.id"))
+
+    pedido = relationship("Pedidos", back_populates="pago")
+    metodo_pago = relationship("MetodosPago", back_populates="pago")
+
+class MetodosPago(Base):
+    __tablename__ = "metodosPago"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+
+    pago = relationship("Pagos", back_populates="metodo_pago")

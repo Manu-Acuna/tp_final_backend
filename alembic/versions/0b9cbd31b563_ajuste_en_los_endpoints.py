@@ -1,8 +1,8 @@
-"""actualizaciones al dal.py
+"""ajuste en los endpoints
 
-Revision ID: 1b5ebed8ac59
-Revises: 47e38d2cbf7e
-Create Date: 2025-06-09 21:26:06.716147
+Revision ID: 0b9cbd31b563
+Revises: 859e089954d2
+Create Date: 2025-06-17 17:57:01.675955
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1b5ebed8ac59'
-down_revision: Union[str, None] = '47e38d2cbf7e'
+revision: str = '0b9cbd31b563'
+down_revision: Union[str, None] = '859e089954d2'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

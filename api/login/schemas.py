@@ -1,4 +1,4 @@
-from  pydantic import BaseModel
+from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
@@ -9,8 +9,13 @@ class UsuariosCreateRequest(BaseModel):
     username: str
     email: str
     password: str
-    registry_date: Optional[date] = None
-    rol_id: int
+
+
+class DireccionesEnvioCreateRequest(BaseModel):
+    address: str
+    city: str
+    zip_code: str
+    user_id: int
 
 
 # RESPONSE
@@ -20,11 +25,17 @@ class UsuariosResponse(BaseModel):
     username: str
     email: str
     password: str
-    registry_date: Optional[date]
-    rol_id: int
-    
+
     class Config:
         orm_mode = True
 
 
+class DireccionesEnvioResponse(BaseModel):
+    id: int
+    address: str
+    city: str
+    zip_code: str
+    usuario_id: int
 
+    class Config:
+        orm_mode = True
