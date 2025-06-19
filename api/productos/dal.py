@@ -19,6 +19,12 @@ async def obtener_productos(db: AsyncSession):
     return result.scalars().all()
 
 
+async def obtener_producto_por_id(db: AsyncSession, product_id: int):
+    query = select(models.Productos).where(models.Productos.id == product_id)
+    result = await db.execute(query)
+    return result.scalars().first()
+
+
 async def crear_categoria(db: AsyncSession, categoria: schemas.CategoriaCreateRequest):
     nueva_categoria = models.Categorias(**categoria.dict())
     db.add(nueva_categoria)

@@ -14,12 +14,24 @@ class CarritoCreateRequest(BaseModel):
     user_id: int
     time_tamptz: date
 
+class AgregarItemAlCarritoRequest(BaseModel):
+    product_id: int
+    quantity: int   
 
 class CarritoDetalleCreateRequest(BaseModel):
     quantity: int
     price: float
     cart_id: int
     product_id: int
+
+class AgregarItemAlCarrito(BaseModel):
+    cart_id: int
+    product_id: int
+    quantity: int
+    price: float
+
+class ActualizarCantidadCarritoRequest(BaseModel):
+    quantity: int
 
 
 # RESPONSE
