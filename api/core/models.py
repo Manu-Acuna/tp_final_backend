@@ -11,7 +11,7 @@ class Usuarios(Base):
     email = Column(String, unique=True, index=True)
     password = Column(String)
 
-    direccion = relationship("Direcciones", back_populates="usuario")
+    direccion = relationship("DireccionesEnvio", back_populates="usuario")
     carrito = relationship("Carrito", back_populates="usuario")
     pedido = relationship("Pedidos", back_populates="usuario")
 
