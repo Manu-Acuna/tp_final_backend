@@ -48,7 +48,7 @@ async def eliminar_item_del_carrito(db: AsyncSession, carrito_detalle: models.Ca
     """Elimina un objeto CarritoDetalle de la base de datos."""
     await db.delete(carrito_detalle)
     await db.commit()
-    return True # Opcional: puede devolver algo para indicar éxito
+    return True 
 
 
 async def actualizar_cantidad_item_carrito(db: AsyncSession, carrito_detalle: models.CarritoDetalle, nueva_cantidad: int, precio_unitario_producto: float):
@@ -57,15 +57,14 @@ async def actualizar_cantidad_item_carrito(db: AsyncSession, carrito_detalle: mo
     carrito_detalle.price = nueva_cantidad * precio_unitario_producto
     await db.commit()
     await db.refresh(carrito_detalle)
-    # Volver a cargar las relaciones necesarias para la respuesta del endpoint
+    
     result = await db.execute(select(models.CarritoDetalle).options(selectinload(models.CarritoDetalle.carrito), selectinload(models.CarritoDetalle.producto)).where(models.CarritoDetalle.id == carrito_detalle.id))
     return result.scalars().first()
 
 
 async def vaciar_carrito_completo(db: AsyncSession, carrito_id: int):
     """Elimina todos los CarritoDetalle asociados a un carrito_id."""
-    # Se podría hacer con un delete directo, pero para mantener la consistencia
-    # y si hubiera lógica de cascada o eventos (aunque no en este caso simple):
+    
     items_a_eliminar = await db.execute(select(models.CarritoDetalle).where(models.CarritoDetalle.cart_id == carrito_id))
     for item in items_a_eliminar.scalars().all():
         await db.delete(item)

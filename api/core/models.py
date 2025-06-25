@@ -114,10 +114,10 @@ class Pagos(Base):
     amount = Column(Float)
     status = Column(Integer)
     order_id = Column(Integer, ForeignKey("pedidos.id"))
-    payment_method = Column(String, ForeignKey("metodosPago.id"))
-
+    payment_method = Column(Integer, ForeignKey("metodosPago.id")) # Corregido
     pedido = relationship("Pedidos", back_populates="pago")
     metodo_pago = relationship("MetodosPago", back_populates="pago")
+
 
 class MetodosPago(Base):
     __tablename__ = "metodosPago"
