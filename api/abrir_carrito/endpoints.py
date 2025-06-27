@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from sqlalchemy.future import select
-from api.core.database import AsyncSessionLocal 
+from api.core.database import AsyncSessionLocal
 from api.auth.endpoints import get_current_user
-from api.productos import dal as productos_dal 
-from api.core import models 
+from api.productos import dal as productos_dal
+from api.core import models, dal as core_dal
+from api.core.enum import PedidoStatus, PagoStatus
 from . import dal, schemas 
 
 
@@ -194,6 +195,20 @@ async def finalizar_compra(
                 detail=f"Stock insuficiente para el producto '{producto.name if producto else 'ID:'+str(item.product_id)}'. Stock disponible: {producto.stock if producto else 'N/A'}"
             )
     
+    # 3. Validar Dirección y Método de Pago
+    direccion = await db.get(models.DireccionesEnvio, request_data.address_id)
+    if not direccion or direccion.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="La dirección de envío no fue encontrada o no pertenece al usuario."
+        )
+
+    metodo_pago = await db.get(models.MetodosPago, request_data.payment_method_id)
+    if not metodo_pago:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="El método de pago no fue encontrado."
+        )
+
     # 3. Calculate total
     total_pedido = await dal.calcular_total_carrito(db=db, carrito_id=carrito.id)
 
@@ -203,7 +218,7 @@ async def finalizar_compra(
             user_id=current_user.id,
             date=datetime.now(timezone.utc),
             total=total_pedido,
-            status=1,  # e.g., 1 for "Procesando"
+            status=PedidoStatus.PROCESANDO.value,
             address_id=request_data.address_id
         )
         db.add(nuevo_pedido)
@@ -214,6 +229,16 @@ async def finalizar_compra(
             db.add(models.PedidoDetalle(order_id=nuevo_pedido.id, product_id=item.product_id, quantity=item.quantity, price=item.price))
             producto = await productos_dal.obtener_producto_por_id(db, item.product_id)
             producto.stock -= item.quantity
+
+        # 6. Crear el registro del Pago (¡ESTA ES LA PARTE QUE FALTABA!)
+        nuevo_pago = models.Pagos(
+            order_id=nuevo_pedido.id,
+            payment_method_id=request_data.payment_method_id,
+            amount=total_pedido,
+            date=datetime.now(timezone.utc),
+            status=PagoStatus.APROBADO.value # Asumimos que el pago es aprobado inmediatamente
+        )
+        db.add(nuevo_pago)
 
         await dal.vaciar_carrito_completo(db, carrito.id)
         await db.commit()
