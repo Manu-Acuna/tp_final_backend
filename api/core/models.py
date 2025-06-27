@@ -61,6 +61,7 @@ class Productos(Base):
     description = Column(String)
     price = Column(Integer)
     stock = Column(Integer)
+    image_url = Column(String, nullable=True) # Añadimos la URL de la imagen
     category_id = Column(Integer, ForeignKey("categorias.id"))
 
     categoria = relationship("Categorias", back_populates="producto")
@@ -103,7 +104,7 @@ class Pedidos(Base):
     usuario = relationship("Usuarios", back_populates="pedido")
     pedido_detalle = relationship("PedidoDetalle", back_populates="pedido")
     direccion = relationship("DireccionesEnvio", back_populates="pedido")
-    pago = relationship("Pagos", back_populates="pedido")
+    pagos = relationship("Pagos", back_populates="pedido")
 
 
 class Pagos(Base):
@@ -115,7 +116,7 @@ class Pagos(Base):
     status = Column(Integer)
     order_id = Column(Integer, ForeignKey("pedidos.id"))
     payment_method_id = Column(Integer, ForeignKey("metodosPago.id")) # Corregido
-    pedido = relationship("Pedidos", back_populates="pago")
+    pedido = relationship("Pedidos", back_populates="pagos")
     metodo_pago = relationship("MetodosPago", back_populates="pagos")
 
 

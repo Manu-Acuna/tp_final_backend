@@ -1,34 +1,17 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date
+from datetime import datetime
 
 
 # REQUEST
-
-class UsuariosCreateRequest(BaseModel):
-    username: str
-    email: str
-    password: str
-
-class CarritoCreateRequest(BaseModel):
-    user_id: int
-    time_tamptz: date
 
 class AgregarItemAlCarritoRequest(BaseModel):
     product_id: int
     quantity: int   
 
-class CarritoDetalleCreateRequest(BaseModel):
-    quantity: int
-    price: float
-    cart_id: int
-    product_id: int
-
-class AgregarItemAlCarrito(BaseModel):
-    cart_id: int
-    product_id: int
-    quantity: int
-    price: float
+class FinalizarCompraRequest(BaseModel):
+    address_id: int
+    payment_method_id: int
 
 class ActualizarCantidadCarritoRequest(BaseModel):
     quantity: int
@@ -36,23 +19,22 @@ class ActualizarCantidadCarritoRequest(BaseModel):
 
 # RESPONSE
 
-class UsuariosResponse(BaseModel):
-    id: int
-    username: str
-    email: str
-    password: str
 
-    class Config:
-        orm_mode = True
 
 class CarritoResponse(BaseModel):
     id: int
     user_id: int
-    time_tamptz: date
+    created_at: datetime
 
     class Config:
         orm_mode = True
 
+class CarritoTotalResponse(BaseModel):
+    cart_id: int
+    total_price: float
+
+    class Config:
+        orm_mode = True
 
 class CarritoDetalleResponse(BaseModel):
     id: int
@@ -60,7 +42,13 @@ class CarritoDetalleResponse(BaseModel):
     price: float
     cart_id: int
     product_id: int
+    product_name: str
+    image_url: Optional[str] = None
 
     class Config:
         orm_mode = True
+
+class FinalizarCompraResponse(BaseModel):
+    message: str
+    order_id: int
         

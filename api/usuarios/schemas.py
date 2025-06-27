@@ -1,30 +1,17 @@
-from  pydantic import BaseModel
-from typing import Optional
-from datetime import date
-
+from pydantic import BaseModel
 
 # REQUEST
-
-class UsuariosCreateRequest(BaseModel):
-    username: str
-    email: str
-    password: str
-    registry_date: Optional[date] = None
-    rol_id: int
-
+class DireccionEnvioCreateRequest(BaseModel):
+    address: str
+    city: str
+    zip_code: str
 
 # RESPONSE
-
-class UsuariosResponse(BaseModel):
+class DireccionEnvioResponse(BaseModel):
     id: int
-    username: str
-    email: str
-    password: str
-    registry_date: Optional[date]
-    rol_id: int
-    
+    address: str
+    city: str
+    zip_code: str
+
     class Config:
         orm_mode = True
-
-
-

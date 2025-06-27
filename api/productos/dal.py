@@ -38,6 +38,17 @@ async def actualizar_producto(db: AsyncSession, product_id: int, producto: schem
     return db_producto
 
 
+async def actualizar_parcialmente_producto(db: AsyncSession, product_id: int, producto: schemas.ProductoUpdateRequest):
+    db_producto = await db.get(models.Productos, product_id)
+    if db_producto:
+        update_data = producto.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_producto, key, value)
+        await db.commit()
+        await db.refresh(db_producto)
+    return db_producto
+
+
 async def eliminar_producto(db: AsyncSession, product_id: int):
     db_producto = await db.get(models.Productos, product_id)
     if db_producto:

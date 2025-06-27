@@ -1,10 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from api.core.database import AsyncSessionLocal 
 from api.core import models
-from . import dal, schemas 
+from . import dal, schemas
+import os
+import uuid
+import aiofiles
 
+
+UPLOAD_DIRECTORY = "public/images/productos"
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True) # Crea el directorio si no existe
 
 router = APIRouter()
 
@@ -40,6 +46,16 @@ async def actualizar_producto(product_id: int, producto: schemas.ProductoCreateR
     if db_producto is None:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return db_producto
+
+
+#Funciona
+@router.patch("/productos/{product_id}", response_model=schemas.ProductoResponse, tags=["productos"])
+async def actualizar_parcial_producto(product_id: int, producto: schemas.ProductoUpdateRequest, db: AsyncSession = Depends(get_db)):
+    db_producto = await dal.actualizar_parcialmente_producto(db=db, product_id=product_id, producto=producto)
+    if db_producto is None:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return db_producto
+
 
 #Funciona
 @router.delete("/productos/{product_id}",status_code=204, tags=["productos"])
@@ -84,6 +100,3 @@ async def eliminar_categoria(categoria_id: int, db: AsyncSession = Depends(get_d
     if not eliminado:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
     return None
-
-
-#ENFOCARSE EN EL LOGIN PARA PODER MANEJAR EL CARRITO Y LOS PAGOS

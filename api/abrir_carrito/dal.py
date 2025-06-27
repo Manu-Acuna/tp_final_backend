@@ -1,18 +1,31 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+from datetime import datetime, timezone
 from api.core import models
 from api.abrir_carrito import schemas
 
 
-async def crear_carrito(db: AsyncSession, carrito: schemas.CarritoCreateRequest):
-    db_carrito = models.Carrito(**carrito.dict())
+async def obtener_o_crear_carrito(db: AsyncSession, user_id: int):
+    result = await db.execute(select(models.Carrito).where(models.Carrito.user_id == user_id))
+    carrito = result.scalars().first()
+    if carrito is not None:
+        return carrito
+    
+    db_carrito = models.Carrito(user_id=user_id, time_tamptz=datetime.now(timezone.utc))
     db.add(db_carrito)
     await db.commit()
     await db.refresh(db_carrito)
     
-    result = await db.execute(select(models.Carrito).options(selectinload(models.Carrito.usuario)).where(models.Carrito.id == db_carrito.id))
-    return result.scalars().first()
+    return db_carrito
+
+
+async def calcular_total_carrito(db: AsyncSession, carrito_id: int) -> float:
+    detalles = await obtener_detalle_carrito(db=db, carrito_id=carrito_id)
+    total = 0.0
+    for item in detalles:
+        total += item.quantity * item.price
+    return total
 
 
 async def obtener_carrito_por_usuario_id(db: AsyncSession, user_id: int): #user_id va a venir desde el endpoint
@@ -21,14 +34,18 @@ async def obtener_carrito_por_usuario_id(db: AsyncSession, user_id: int): #user_
     return result.scalars().first()
 
 
-async def crear_carrito_detalle(db: AsyncSession, carrito_detalle: schemas.CarritoDetalleCreateRequest):
-    db_carrito_detalle = models.CarritoDetalle(**carrito_detalle.dict())
-    db.add(db_carrito_detalle)
+async def agregar_item_al_carrito(db: AsyncSession, cart_id: int, product_id: int, quantity: int, price: float):
+    result = await db.execute(select(models.CarritoDetalle).where(models.CarritoDetalle.cart_id == cart_id, models.CarritoDetalle.product_id == product_id))
+    item_existente = result.scalars().first()
+    if item_existente:
+        item_existente.quantity += quantity
+        db_item = item_existente
+    else:
+        db_item = models.CarritoDetalle(cart_id=cart_id, product_id=product_id, quantity=quantity, price=price)
+        db.add(db_item)
     await db.commit()
-    await db.refresh(db_carrito_detalle)
-    
-    result = await db.execute(select(models.CarritoDetalle).options(selectinload(models.CarritoDetalle.carrito)).where(models.CarritoDetalle.id == db_carrito_detalle.id))
-    return result.scalars().first()
+    await db.refresh(db_item)
+    return db_item
 
 
 async def obtener_detalle_carrito(db: AsyncSession, carrito_id: int): # carrito_id va a venir desde el endpoint
@@ -54,7 +71,6 @@ async def eliminar_item_del_carrito(db: AsyncSession, carrito_detalle: models.Ca
 async def actualizar_cantidad_item_carrito(db: AsyncSession, carrito_detalle: models.CarritoDetalle, nueva_cantidad: int, precio_unitario_producto: float):
     """Actualiza la cantidad y el precio total de un item en el carrito."""
     carrito_detalle.quantity = nueva_cantidad
-    carrito_detalle.price = nueva_cantidad * precio_unitario_producto
     await db.commit()
     await db.refresh(carrito_detalle)
     
