@@ -67,7 +67,7 @@
 			</div>
 
 			<!-- Formulario de registro (Inputs: nombre, email, contraseña)-->
-			<form class="mw-sm mx-auto">
+			<form class="mw-sm mx-auto" id="register-form">
 				<div class="mb-4 row g-6">
 					<div class="col-12">
 						<div class="form-group">
@@ -122,6 +122,40 @@
 	</section>
 
 	<script src="js/burguer-button.js"></script>
+	<script>
+		document.getElementById('register-form').addEventListener('submit', async function (event) {
+			event.preventDefault();
+
+			const nombre = document.getElementById('nombre').value;
+			const email = document.getElementById('email').value;
+			const password = document.getElementById('contraseña').value;
+
+			try {
+				const response = await fetch('/register', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						username: nombre,
+						email: email,
+						password: password
+					}),
+				});
+
+				if (response.status === 201) {
+					alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+					window.location.href = 'login.html';
+				} else {
+					const errorData = await response.json();
+					alert('Error en el registro: ' + errorData.detail);
+				}
+			} catch (error) {
+				console.error('Error:', error);
+				alert('Ocurrió un error al intentar registrarse.');
+			}
+		});
+	</script>
 </body>
 
 </html>

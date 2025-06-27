@@ -114,9 +114,9 @@ class Pagos(Base):
     amount = Column(Float)
     status = Column(Integer)
     order_id = Column(Integer, ForeignKey("pedidos.id"))
-    payment_method = Column(Integer, ForeignKey("metodosPago.id")) # Corregido
+    payment_method_id = Column(Integer, ForeignKey("metodosPago.id")) # Corregido
     pedido = relationship("Pedidos", back_populates="pago")
-    metodo_pago = relationship("MetodosPago", back_populates="pago")
+    metodo_pago = relationship("MetodosPago", back_populates="pagos")
 
 
 class MetodosPago(Base):
@@ -125,4 +125,4 @@ class MetodosPago(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
 
-    pago = relationship("Pagos", back_populates="metodo_pago")
+    pagos = relationship("Pagos", back_populates="metodo_pago")

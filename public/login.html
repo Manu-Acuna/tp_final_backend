@@ -67,18 +67,18 @@
 			</div>
 			
 			<!-- Formulario de inicio de sesión (Inputs: email, contraseña)-->
-			<form class="mw-sm mx-auto">
+			<form class="mw-sm mx-auto" id="login-form"">
 				<div class="mb-4 row g-6">
 				<div class="col-12">
 					<div class="form-group">
-						<label class="mb-1 fw-medium text-light-dark" for="email">Email</label>
-						<input class="form-control text-secondary-dark shadow" id="email" type="email" placeholder="juanperez@example.com"/>
+						<label class="mb-1 fw-medium text-light-dark" for="username">Email</label>
+						<input class="form-control text-secondary-dark shadow" id="username" name="username" type="username" placeholder="juanperez@example.com"/>
 					</div>
 				</div>
 				<div class="col-12">
 					<div class="form-group">
 						<label class="mb-1 fw-medium text-light-dark" for="contraseña">Contraseña</label>
-						<input class="form-control text-secondary-dark shadow" id="contraseña" type="password" placeholder="********"/>
+						<input class="form-control text-secondary-dark shadow" id="contraseña" name="password" type="password" placeholder="********" required/>
 					</div>
 				</div>
 				</div>
@@ -106,5 +106,34 @@
 	</section>
 
 	<script src="js/burguer-button.js"></script>
+	<script>
+		document.getElementById('login-form').addEventListener('submit', async function (event) {
+			event.preventDefault();
+
+			const formData = new FormData(this);
+
+			try {
+				const response = await fetch('/token', {
+					method: 'POST',
+					body: formData,
+				});
+
+				if (response.ok) {
+					const data = await response.json();
+					// Guarda el token en localStorage para usarlo en futuras peticiones
+					localStorage.setItem('accessToken', data.access_token);
+					// alert('¡Inicio de sesión exitoso!');
+					// Redirige a la página principal o al dashboard
+					window.location.href = 'index.html'; 
+				} else {
+					const errorData = await response.json();
+					alert('Error al iniciar sesión: ' + errorData.detail);
+				}
+			} catch (error) {
+				console.error('Error:', error);
+				alert('Ocurrió un error al intentar iniciar sesión.');
+			}
+		});
+	</script>
 </body>
 </html>
