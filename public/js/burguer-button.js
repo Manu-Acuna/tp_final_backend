@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const backdrop = document.querySelectorAll('.navbar-backdrop');
 
     if (close.length) {
-        for (var i = 0; i < close.length; i++) {
+        for (let i = 0; i < close.length; i++) {
             close[i].addEventListener('click', function() {
                 for (var j = 0; j < menu.length; j++) {
                     menu[j].classList.toggle('d-none');

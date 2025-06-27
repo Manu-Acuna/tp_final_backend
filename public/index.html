@@ -53,6 +53,26 @@
 			</div>
 		</div>
 	</nav>
+	<section class="overflow-hidden">
+		<div class="d-none navbar-menu position-fixed top-0 end-0 bottom-0 w-75 mw-xs" style="z-index: 9999;">
+			<div class="navbar-backdrop position-fixed top-0 start-0 end-0 bottom-0 bg-dark" style="opacity: 75%;"></div>
+			<nav class="position-relative h-100 w-100 d-flex flex-column p-6 bg-white overflow-auto">
+				<div class="d-flex align-items-center mb-5">
+					<a class="me-auto h4 mb-0 text-decoration-none" href="#">
+						<img class="img-fluid w-25" src="images/logo.png" alt="" />
+					</a>
+					<a class="navbar-close text-secondary" href="#">
+						<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+						</svg>
+					</a>
+				</div>
+				<div id="navbar-burger-buttons" class="row align-items-center g-6">
+					<!-- Los botones del menú burguer se insertarán aquí -->
+				</div>
+			</nav>
+		</div>
+	</section>
 
 	<!-- Contenedor lateral del carrito -->
 	<div id="cart-sidebar">
@@ -90,6 +110,7 @@
 		document.addEventListener('DOMContentLoaded', function () {
 			updateNavbar();
 			fetchProducts();
+			updateBurgerMenu();
 		});
 
 		function updateNavbar() {
@@ -126,9 +147,41 @@
 			}
 		}
 
+		function updateBurgerMenu() {
+			const navbarBurgerButtons = document.getElementById('navbar-burger-buttons');
+			const accessToken = localStorage.getItem('accessToken');
+			
+			if (accessToken) {
+				// Usuario logueado
+				navbarBurgerButtons.innerHTML = `
+					<div class="col-12">
+						<a class="link-secondary fs-11 fw-medium d-block w-100 text-center" href="#">Mi Perfil</a>
+					</div>
+					<div class="col-12"> 
+						<button class="btn btn-link link-secondary fs-11 fw-medium p-0 d-block w-100 text-center" onclick="toggleCartSidebar(); fetchCartDetails();">Carrito</button>
+					</div>
+					<div class="col-12">
+						<button class="btn btn-sm btn-danger shadow d-block w-100" onclick="logout()">Cerrar Sesión</button>
+					</div>
+				`;
+			} else {
+				// Usuario no logueado
+				navbarBurgerButtons.innerHTML = `
+					<div class="col-12">
+						<a class="link-secondary fs-11 fw-medium d-block w-100 text-center" href="login.html">Iniciar Sesión</a>
+					</div>
+					<div class="col-12">
+						<a class="btn btn-sm btn-success shadow d-block w-100" href="register.html">Registrarse</a>
+					</div>
+				`;
+			}
+		}
+
 		function logout() {
 			localStorage.removeItem('accessToken');
 			updateNavbar();
+			updateBurgerMenu();
+			fetchCartDetails(); // Limpia la vista del carrito
 		}
 
 		async function fetchProducts() {
