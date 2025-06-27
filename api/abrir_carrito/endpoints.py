@@ -18,7 +18,7 @@ async def get_db():
         yield session
 
 
-@router.get("/carrito/mi_carrito", response_model=schemas.CarritoResponse, summary="Obtener o crear el carrito del usuario activo", description="Recupera el carrito activo del usuario, Si no existe, lo crea y lo devuelve.")
+@router.get("/carrito/mi_carrito", response_model=schemas.CarritoResponse, summary="Obtener o crear el carrito del usuario activo", description="Recupera el carrito activo del usuario, Si no existe, lo crea y lo devuelve.", tags=["Carrito"])
 async def obtener_o_crear_carrito_usuario(db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     db_carrito = await dal.obtener_o_crear_carrito(db=db, user_id=current_user.id)
     if db_carrito is None:
