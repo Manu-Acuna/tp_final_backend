@@ -26,14 +26,14 @@ async def obtener_o_crear_carrito_usuario(db: AsyncSession = Depends(get_db), cu
     return db_carrito
 
 
-@router.get("/carrito/mi_carrito/total", response_model=schemas.CarritoTotalResponse, summary="Obtener el total del carrito del usuario", description="Obtiene el total del carrito del usuario")
+@router.get("/carrito/mi_carrito/total", response_model=schemas.CarritoTotalResponse, summary="Obtener el total del carrito del usuario", description="Obtiene el total del carrito del usuario", tags=["Carrito"])
 async def obtener_total_carrito(db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     carrito = await dal.obtener_o_crear_carrito(db=db, user_id=current_user.id)
     total = await dal.calcular_total_carrito(db=db, carrito_id=carrito.id)
     return schemas.CarritoTotalResponse(cart_id=carrito.id, total_price=total)
 
 
-@router.get("/carrito/mi_carrito/detalles", response_model=list[schemas.CarritoDetalleResponse], summary="Ver todos los items en el carrito del usuario") 
+@router.get("/carrito/mi_carrito/detalles", response_model=list[schemas.CarritoDetalleResponse], summary="Ver todos los items en el carrito del usuario", tags=["Carrito"]) 
 async def ver_items_del_carrito(db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     carrito = await dal.obtener_o_crear_carrito(db=db, user_id=current_user.id)
     if not carrito:
@@ -58,7 +58,7 @@ async def ver_items_del_carrito(db: AsyncSession = Depends(get_db), current_user
 
     return response_detalles
 
-@router.post("/carrito/mi_carrito/detalles", response_model=schemas.CarritoDetalleResponse, status_code=status.HTTP_201_CREATED, summary="Agregar un item al carrito (o actualizar la cantidad)")
+@router.post("/carrito/mi_carrito/detalles", response_model=schemas.CarritoDetalleResponse, status_code=status.HTTP_201_CREATED, summary="Agregar un item al carrito (o actualizar la cantidad)", tags=["Carrito"])
 async def agregar_item_al_carrito(
     item_data: schemas.AgregarItemAlCarritoRequest, db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     
@@ -107,7 +107,7 @@ async def agregar_item_al_carrito(
     }
 
 
-@router.delete("/carrito/mi_carrito/detalles/{id_del_item}", status_code=204, summary="Eliminar un item del carrito del usuario")
+@router.delete("/carrito/mi_carrito/detalles/{id_del_item}", status_code=204, summary="Eliminar un item del carrito del usuario", tags=["Carrito"])
 async def eliminar_item_del_carrito(id_del_item: int, db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     carrito_usuario = await dal.obtener_o_crear_carrito(db=db, user_id=current_user.id)
     id_del_carrito = carrito_usuario.id
@@ -124,7 +124,7 @@ async def eliminar_item_del_carrito(id_del_item: int, db: AsyncSession = Depends
     return
 
 
-@router.put("/carrito/mi_carrito/detalles/{id_del_item}", response_model=schemas.CarritoDetalleResponse, summary="Actualizar la cantidad de un item en el carrito")
+@router.put("/carrito/mi_carrito/detalles/{id_del_item}", response_model=schemas.CarritoDetalleResponse, summary="Actualizar la cantidad de un item en el carrito", tags=["Carrito"])
 async def actualizar_cantidad_items_del_carrito(id_del_item: int, item_update_data: schemas.ActualizarCantidadCarritoRequest, db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     carrito_usuario = await dal.obtener_o_crear_carrito(db=db, user_id=current_user.id)
     id_del_carrito = carrito_usuario.id
@@ -162,7 +162,7 @@ async def actualizar_cantidad_items_del_carrito(id_del_item: int, item_update_da
     }
 
 
-@router.delete("/carrito/mi_carrito/vaciar", status_code=status.HTTP_204_NO_CONTENT, summary="Vaciar el carrito del usuario")
+@router.delete("/carrito/mi_carrito/vaciar", status_code=status.HTTP_204_NO_CONTENT, summary="Vaciar el carrito del usuario", tags=["Carrito"])
 async def vaciar_carrito_del_usuario(db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     carrito_usuario = await dal.obtener_o_crear_carrito(db=db, user_id=current_user.id)
     id_del_carrito = carrito_usuario.id
@@ -173,7 +173,7 @@ async def vaciar_carrito_del_usuario(db: AsyncSession = Depends(get_db), current
     return 
 
 
-@router.post("/carrito/mi_carrito/finalizar_compra", response_model=schemas.FinalizarCompraResponse, summary="Finalizar la compra y crear un pedido")
+@router.post("/carrito/mi_carrito/finalizar_compra", response_model=schemas.FinalizarCompraResponse, summary="Finalizar la compra y crear un pedido", tags=["Carrito"])
 async def finalizar_compra(
     request_data: schemas.FinalizarCompraRequest,
     db: AsyncSession = Depends(get_db), 

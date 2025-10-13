@@ -33,6 +33,14 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
         raise credentials_exception
     return user
 
+async def get_current_admin_user(current_user: models.Usuarios = Depends(get_current_user)):
+    """
+    Dependencia que verifica si el usuario actual es un administrador.
+    """
+    if not current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acceso denegado: se requieren privilegios de administrador.")
+    return current_user
+
 
 @router.post("/register", response_model=schemas.UserResponse, status_code=201, tags=["auth"])
 async def register(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):

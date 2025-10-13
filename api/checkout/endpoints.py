@@ -16,7 +16,7 @@ async def get_db():
         yield session
 
 
-@router.post("/checkout", response_model=schemas.PedidoResponse, status_code=status.HTTP_201_CREATED, summary="Finalizar la compra y crear un pedido.")
+@router.post("/checkout", response_model=schemas.PedidoResponse, status_code=status.HTTP_201_CREATED, summary="Finalizar la compra y crear un pedido.", tags=["Checkout"])
 async def checkout(checkout_data: schemas.CheckoutRequest, db: AsyncSession = Depends(get_db), current_user: models.Usuarios = Depends(get_current_user)):
     try:
         nuevo_pedido = await dal.procesar_checkout(db=db, user_id=current_user.id, address_id=checkout_data.address_id, payment_method_id=checkout_data.payment_method_id)

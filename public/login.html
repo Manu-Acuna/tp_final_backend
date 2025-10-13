@@ -111,11 +111,16 @@
 			event.preventDefault();
 
 			const formData = new FormData(this);
+			// FastAPI con OAuth2PasswordRequestForm espera 'application/x-www-form-urlencoded'.
+			// Creamos un objeto URLSearchParams para asegurar el formato correcto.
+			const urlEncodedData = new URLSearchParams(formData);
 
 			try {
 				const response = await fetch('/token', {
 					method: 'POST',
 					body: formData,
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: urlEncodedData,
 				});
 
 				if (response.ok) {

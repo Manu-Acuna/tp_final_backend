@@ -17,13 +17,16 @@ async def get_user_by_username(db: AsyncSession, username: str):
 
 
 async def authenticate_user(db: AsyncSession, username: str, password: str):
-    """Autentica un usuario. Devuelve el usuario si es válido, si no False."""
-    user = await get_user_by_username(db, username)
-    if not user:
-        return False
-    if not security.verify_password(password, user.password):
-        return False
-    return user
+    """
+    Autentica un usuario contra la base de datos local.
+    Devuelve el objeto de usuario si la autenticación es exitosa, si no False.
+    """
+    # Autenticación local
+    local_user = await get_user_by_username(db, username)
+    if not local_user or not security.verify_password(password, local_user.password):
+        return None  # El usuario no existe o la contraseña es incorrecta
+
+    return local_user
 
 
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
@@ -34,4 +37,3 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate):
     await db.commit()
     await db.refresh(db_user)
     return db_user
-

@@ -1,0 +1,31 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Estilos para el carrito lateral*/
+
+#cart-sidebar {
+			position: fixed;
+			top: 0;
+			right: -350px; /* Oculto por defecto */
+			width: 350px;
+			height: 100%;
+			background-color: #f8f9fa; /* Color de fondo claro */
+			box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+			transition: right 0.3s ease-in-out;
+			z-index: 1050; /* Asegura que esté por encima de otros elementos */
+			overflow-y: auto; /* Permite scroll si el contenido es largo */
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+}
+
+#cart-sidebar.open {
+    right: 0; /* Visible */
+}
+#cart-sidebar-close {
+    align-self: flex-end; /* Alinea el botón de cerrar a la derecha */
+}
