@@ -2,6 +2,183 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+/* Ajuste para la barra de navegación fija */
+body {
+    padding-top: 100px; /* Espacio para la barra de navegación fija. Ajusta este valor si es necesario. */
+}
+
+/* Estilos para el Header (sin Bootstrap) */
+.main-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    
+    /* Cambios para hacer la barra fija */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1030; /* Un z-index alto para que esté por encima de todo */
+    min-height: 80px; /* Altura mínima para la barra de navegación */
+}
+
+.logo-container .header-logo {
+    height: 150px; /* ¡Logo mucho más grande! */
+    width: auto;
+    position: absolute; /* Lo sacamos del flujo normal */
+    top: 40px; /* Lo centramos verticalmente respecto al header (80px / 2) */
+    transform: translateY(-50%); /* Ajuste fino para el centrado vertical */
+    left: 2rem;
+    z-index: 10; /* Para que esté por encima de otros elementos si es necesario */
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-left: 220px; /* Espacio para que el logo no se superponga */
+}
+
+.search-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 2rem;
+}
+
+.search-form {
+    display: flex;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-input {
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 0.6rem 1rem;
+    border-radius: 20px 0 0 20px;
+    border-right: none;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.search-button {
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #f8f8f8;
+    padding: 0 1rem;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.user-login {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: #333;
+}
+
+/* Clases de visibilidad para responsive */
+.mobile-only {
+    display: none;
+}
+.desktop-only {
+    display: flex; /* O el display que corresponda */
+}
+
+/* Estilos para el menú de hamburguesa */
+.hamburger-menu {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1051;
+}
+
+/* Estilos para el menú lateral móvil (copiados de burguer-button.js) */
+.navbar-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1050;
+}
+.navbar-menu.d-none {
+    display: none;
+}
+.navbar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.mobile-nav {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80%;
+    max-width: 320px;
+    height: 100%;
+    background-color: #fff;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+.mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+.mobile-nav-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.mobile-nav-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .search-container {
+        display: none; /* Oculta la barra de búsqueda en pantallas pequeñas */
+    }
+    .desktop-only {
+        display: none;
+    }
+    .mobile-only {
+        display: block;
+    }
+    .nav-container {
+        margin-left: 0;
+        justify-content: flex-end; /* Alinea los iconos a la derecha en móvil */
+    }
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
 
@@ -28,4 +205,173 @@
 }
 #cart-sidebar-close {
     align-self: flex-end; /* Alinea el botón de cerrar a la derecha */
+}
+
+/* Estilos para el carrusel de productos */
+.carrusel {
+    padding: 2rem 0;
+    display: flex;
+    justify-content: center;
+}
+/* Limita el ancho del contenedor del carrusel para que coincida con las imágenes */
+#productCarousel {
+    width: 80vw;
+}
+
+.carousel-image-custom {
+    width: 80vw;
+    max-height: 550px;
+    border-radius: 38px;
+    object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
+    margin: auto; /* Centra la imagen en el carrusel */
+}
+
+.row{
+	width: 100%;
+	margin: 20px auto;
+}
+
+.row .flex-container{
+	width: 100%;
+	margin: auto;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.row .flex-container .container-item{
+	/* width: 33%; */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+}
+
+.row .flex-container .container-item .icon-container{
+	width: 80px;
+}
+
+/* Cambia el color de los íconos SVG en la sección de información */
+.row .flex-container .container-item .icon-container svg{
+	fill: #007bff; /* Usamos 'fill' para forzar el color de relleno del SVG */
+}
+
+/* Estilos para el segundo container-item */
+.row .flex-container .container-item:nth-child(2) {
+    border-left: 1px solid #000000;  /* Borde izquierdo */
+    border-right: 1px solid #000000; /* Borde derecho */
+    margin-left: 40px;               /* Margen izquierdo */
+    margin-right: 40px;              /* Margen derecho */
+    padding: 0 40px;                 /* Espaciado interno para que el contenido no toque los bordes */
+}
+
+.row .flex-container .container-item .text-container{
+	margin-left: 20px;
+}
+
+.row .flex-container .container-item .text-container h2{
+	font-size: 26px;
+}
+
+.row .flex-container .container-item .text-container p{
+	font-size: 16px;
+}
+
+
+/*footer*/
+footer{
+    background-color: #767676;
+}
+
+
+footer .flex-container{
+    width: 100%;
+    color: #fff;
+    margin: auto;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+footer .flex-container .container-item{
+    padding: 110px 0 0 20px;
+    display: block;
+    
+}
+
+footer .flex-container .container-item h3{
+    color: #fff;
+    margin-bottom: 30px;
+}
+
+/* Estilos para el formulario de newsletter en el footer */
+footer .newsletter-form {
+    margin-top: 1rem;
+}
+
+footer .newsletter-input-group {
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    overflow: hidden; /* Para que los bordes redondeados se apliquen bien */
+    background-color: #fff;
+}
+
+footer .newsletter-input-group input {
+    flex-grow: 1;
+    border: none;
+    padding: 0.75rem 1rem;
+    outline: none;
+    background-color: transparent;
+}
+
+footer .newsletter-input-group button {
+    background-color: #007bff; /* Mismo color azul que los otros íconos */
+    color: white;
+    border: none;
+    padding: 0 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+footer .newsletter-input-group button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para los botones y enlaces del footer */
+.footer-links-container {
+    margin: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem; /* Espacio entre elementos */
+}
+
+.footer-button {
+    background-color: #6c757d;
+    border: 1px solid #6c757d; /* Gris neutro */
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    width: 250px; /* Ancho fijo para consistencia */
+    transition: background-color 0.2s;
+}
+
+.footer-button:hover {
+    background-color: #e9ecef; /* Gris claro al pasar el mouse */
+}
+
+.footer-link {
+    color: #fff;
+    text-decoration: underline;
+    font-size: 0.9rem;
+}
+
+.rights{
+    padding: 5px;
+    margin: auto;
+    text-align: center;
+    color: #fff;
 }
