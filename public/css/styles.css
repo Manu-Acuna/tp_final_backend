@@ -5,16 +5,16 @@
 }
 /* Ajuste para la barra de navegación fija */
 body {
-    padding-top: 100px; /* Espacio para la barra de navegación fija. Ajusta este valor si es necesario. */
+    padding-top: 140px; /* Aumentamos el espacio para el header más alto */
 }
 
 /* Estilos para el Header (sin Bootstrap) */
 .main-header {
+    width: 100%;
     display: flex;
-    align-items: center;
-    padding: 1rem 2rem;
+    flex-direction: column; /* Apilamos la barra principal y la secundaria */
+    align-items: stretch; /* Estira los hijos para que ocupen el ancho */
     background-color: #fff;
-    border-bottom: 1px solid #e0e0e0;
     
     /* Cambios para hacer la barra fija */
     position: fixed;
@@ -22,7 +22,16 @@ body {
     left: 0;
     width: 100%;
     z-index: 1030; /* Un z-index alto para que esté por encima de todo */
-    min-height: 80px; /* Altura mínima para la barra de navegación */
+}
+
+/* Contenedor para la parte superior del header */
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 80px;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 2rem;
 }
 
 .logo-container .header-logo {
@@ -33,6 +42,22 @@ body {
     transform: translateY(-50%); /* Ajuste fino para el centrado vertical */
     left: 2rem;
     z-index: 10; /* Para que esté por encima de otros elementos si es necesario */
+}
+
+.secondary-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem; /* Espaciado inferior */
+}
+
+.secondary-nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 0.5rem 0;
 }
 
 .nav-container {
@@ -173,6 +198,12 @@ body {
         margin-left: 0;
         justify-content: flex-end; /* Alinea los iconos a la derecha en móvil */
     }
+    .secondary-nav {
+        display: none; /* Ocultamos la nav secundaria en móvil */
+    }
+    body {
+        padding-top: 100px; /* Reajustamos el padding para móvil */
+    }
 }
 
 *{
@@ -209,7 +240,7 @@ body {
 
 /* Estilos para el carrusel de productos */
 .carrusel {
-    padding: 2rem 0;
+    padding-bottom: 2rem;
     display: flex;
     justify-content: center;
 }
