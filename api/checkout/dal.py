@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload,joinedload
 from api.core import models
 from api.checkout import schemas
 from datetime import datetime, timezone
-
+from typing import List, Optional
 from api.productos.dal import obtener_producto_por_id
 from api.core.enum import PedidoStatus, PagoStatus
 from api.core.dal import obtener_direccion_envio_por_id_y_usuario, obtener_metodo_pago_tipo_por_id
@@ -81,3 +81,13 @@ async def procesar_checkout(db: AsyncSession, user_id: int, address_id: int, pay
     except Exception as e:
         await db.rollback()
         raise e
+async def obtener_pedidos_de_usuario(db: AsyncSession, user_id: int) -> List[models.Pedidos]:
+    """Obtiene todos los pedidos de un usuario específico con la direccion del pedido."""
+    query = (
+        select(models.Pedidos)
+        .where(models.Pedidos.user_id == user_id)
+        .options(joinedload(models.Pedidos.direccion)) 
+    )
+    result = await db.execute(query)
+    pedidos = result.scalars().all()
+    return pedidos

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>E-commerce - perfil</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<link rel="stylesheet"href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" />
+	<link rel="stylesheet"href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
+	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
+	<style>
+		/* Estilos para el contenedor lateral del carrito */
+		#cart-sidebar {
+			position: fixed;
+			top: 0;
+			right: -350px;
+			/* Oculto por defecto */
+			width: 350px;
+			height: 100%;
+			background-color: #f8f9fa;
+			/* Color de fondo claro */
+			box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+			transition: right 0.3s ease-in-out;
+			z-index: 1050;
+			/* Asegura que esté por encima de otros elementos */
+			overflow-y: auto;
+			/* Permite scroll si el contenido es largo */
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#cart-sidebar.open {
+			right: 0;
+			/* Visible */
+		}
+
+		#cart-sidebar-close {
+			align-self: flex-end;
+			/* Alinea el botón de cerrar a la derecha */
+		}
+	</style>
+</head>
+
+<body>
+	<header><!--La Navbar se inserta por JavaScript--></header>
+	<section class="overflow-hidden">
+		<div class="d-none navbar-menu position-fixed top-0 end-0 bottom-0 w-75 mw-xs" style="z-index: 9999;">
+			<div class="navbar-backdrop position-fixed top-0 start-0 end-0 bottom-0 bg-dark" style="opacity: 75%;">
+			</div>
+			<nav class="position-relative h-100 w-100 d-flex flex-column p-6 bg-white overflow-auto">
+				<div class="d-flex align-items-center mb-5">
+					<a class="me-auto h4 mb-0 text-decoration-none" href="#">
+						<img class="img-fluid w-25" src="images/logo.png" alt="" />
+					</a>
+					<a class="navbar-close text-secondary" href="#">
+						<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+								stroke-linejoin="round"></path>
+						</svg>
+					</a>
+				</div>
+				<div id="navbar-burger-buttons" class="row align-items-center g-6">
+					<!-- Los botones del menú burguer se insertarán aquí -->
+				</div>
+			</nav>
+		</div>
+	</section>
+
+	<!-- Contenedor lateral del carrito -->
+	<div id="cart-sidebar">
+		<button id="cart-sidebar-close" class="btn btn-sm btn-outline-secondary mb-3">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg"
+				viewBox="0 0 16 16">
+				<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+			</svg>
+		</button>
+		<h4 class="mb-4">Mi Carrito</h4>
+		<div id="cart-items-container" class="flex-grow-1">
+			<!-- Los items del carrito se cargarán aquí -->
+			<p class="text-muted">Cargando carrito...</p>
+		</div>
+		<div id="cart-total" class="mt-4 pt-3 border-top">
+			<!-- El total del carrito se mostrará aquí -->
+		</div>
+	</div>
+
+	<!-- Sección de Productos -->
+	<section class="py-5">
+			<div id="product-grid" class="row g-6">
+				<!-- Las tarjetas de productos se insertarán aquí con JavaScript -->
+			</div>
+		</div>
+	</section><div id="lista-pedidos"></div>
+	<footer></footer>
+	<script src="js/burguer-button.js"></script><script src="js/api.js"></script><script src="js/logout.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			updateNavbar();
+			updateBurgerMenu();
+            loaduser();
+			obtenerYMostrarPedidos()
+		});
+		async function fetchApip(url, options = {}) {
+    const accessToken = localStorage.getItem('accessToken');
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+        }
+    };
+    const response = await fetch(url, { ...defaultOptions, ...options });
+    console.log(response);
+
+    if (!response.ok) {
+        // En caso de error, intenta parsear la respuesta JSON para obtener el detalle.
+        const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
+        throw new Error(errorData.detail);
+    }
+    
+    if (response.status === 204) return null;
+    return response.json();
+}
+
+		async function obtenerYMostrarPedidos() {
+    const listaPedidosElement = document.getElementById('lista-pedidos');
+
+    try {
+        const data = await fetchApip("/pedidos");
+        // Verifica si la respuesta contiene una lista de pedidos.
+        if (data) {
+            // Limpia la lista existente antes de añadir los nuevos pedidos.
+            listaPedidosElement.innerHTML = '';
+            if (data.length === 0) {
+                listaPedidosElement.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
+            } else {
+                data.forEach(pedido => {
+                    const pedidoItem = document.createElement('li');
+                    pedidoItem.textContent = `Pedido N°: ${pedido.id}},${pedido.direccion.address}`;
+                    listaPedidosElement.appendChild(pedidoItem);
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Error al obtener los pedidos:", error);
+        listaPedidosElement.innerHTML = `<p style="color: red;">Error al cargar los pedidos: ${error.message}</p>`;
+    }
+}
+
+		//Necesario para cargar usuario
+		async function fetchApi(url, options = {}) {
+			const accessToken = localStorage.getItem('accessToken');
+			const defaultOptions = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + accessToken
+				}
+			};
+			const response = await fetch(url, { ...defaultOptions, ...options });
+			alert("No logueado");
+			if (response.status==401){logout()}
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
+				throw new Error(errorData.detail);
+			}
+			
+			if (response.status === 204) return null;
+			return response.json();
+		}
+		function logout() {
+			localStorage.removeItem('accessToken');
+			updateNavbar();
+			updateBurgerMenu();
+			fetchCartDetails(); // Limpia la vista del carrito
+			window.location.href = 'index.html';
+		}
+		// consigo el usuario 
+		async function loaduser() {
+			try {
+				const response = await fetchApi('/users/me/');
+				console.log(response)
+				if (response) {
+					products = response;
+					const productGrid = document.getElementById('product-grid');
+			productGrid.innerHTML = ''; // Limpiar el grid
+
+			productGrid.innerHTML = `
+					<div class="col-12 col-md-6 col-lg-4">
+						<div class="card h-100 shadow-sm">
+							<div class="card-body d-flex flex-column">
+								<h5 class="card-title">${products.username}</h5>
+								<p class="card-text text-secondary-dark flex-grow-1">|| 'Sin descripción.'}${products.email}</p>
+							</div>
+						</div>
+					</div>
+				`;
+				} else {;console.log(response)
+					console.error('Error al obtener el usuario.');
+					document.getElementById('product-grid').innerHTML = '<p class="text-center">No se pudo cargar el usuario.</p>';
+					
+				}
+			} catch (error) {
+				console.error('Error de red:', error);
+				document.getElementById('product-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el usuario.</p>';
+			}
+		}
+	</script>
+</body>
+</html>
