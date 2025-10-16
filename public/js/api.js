@@ -1,95 +1,111 @@
-const cartSidebar = document.getElementById('cart-sidebar');
-document.addEventListener('DOMContentLoaded', function () {
+const API_BASE_URL = 'http://127.0.0.1:8000';
+
+function initApp() {
+    // Esta función se llama DESPUÉS de que el header se ha cargado dinámicamente.
     updateNavbar();
-    fetchProducts();
     updateBurgerMenu();
-});
+    // También inicializa los listeners del menú hamburguesa que ahora están en el header cargado.
+    if (typeof initBurgerMenuListeners === 'function') {
+        initBurgerMenuListeners();
+    }
+    // Inicializa la funcionalidad de la barra de búsqueda.
+    initSearch();
+}
+
+function initSearch() {
+    const searchForm = document.querySelector('.search-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Evita que la página se recargue
+            const searchInput = document.querySelector('.search-input');
+            const searchTerm = searchInput.value.trim();
+
+            // Solo buscamos si el usuario está en una página con grilla de productos
+            if (document.getElementById('product-grid')) {
+                fetchProducts(searchTerm);
+            } else {
+                // Si no, lo redirigimos a la página principal con el término de búsqueda
+                window.location.href = `index.html?search=${encodeURIComponent(searchTerm)}`;
+            }
+        });
+    }
+}
 
 function updateNavbar() {
-    const navbarButtons = document.getElementById('navbar-buttons');
+    // Actualiza los elementos de login/perfil tanto en el header de escritorio como en el menú móvil.
+    const userLoginElements = document.querySelectorAll('.user-login');
     const accessToken = localStorage.getItem('accessToken');
 
-    if (accessToken) {
-        // Usuario logueado
-        navbarButtons.innerHTML = `
-            <div class="row align-items-center g-6">
-                <div class="col-auto">
-                    <a class="link-secondary fs-11 fw-medium" href="#">Mi Perfil</a>
-                </div>
-                <div class="col-auto"> 
-                    <button class="btn btn-link link-secondary fs-11 fw-medium p-0" onclick="toggleCartSidebar(); fetchCartDetails();">Carrito</button>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-danger shadow" onclick="logout()">Cerrar Sesión</button>
-                </div>
-            </div>
-        `;
-    } else {
-        // Usuario no logueado
-        navbarButtons.innerHTML = `
-            <div class="row align-items-center g-6">
-                <div class="col-auto">
-                    <a class="link-secondary fs-11 fw-medium" href="login.html">Iniciar Sesión</a>
-                </div>
-                <div class="col-auto">
-                    <a class="btn btn-sm btn-success shadow" href="register.html">Registrarse</a>
-                </div>
-            </div>
-        `;
-    }
+    if (userLoginElements.length === 0) return;
+
+    userLoginElements.forEach(element => {
+        const icon = element.querySelector('svg');
+        const span = element.querySelector('span');
+
+        if (accessToken) {
+            element.href = 'prueba.html'; // O la página de perfil que corresponda
+            if(span) span.textContent = 'Mi Perfil';
+            
+            // Mostramos el botón de logout si existe
+            const logoutButton = document.querySelector('.logout-button');
+            if (logoutButton) logoutButton.style.display = 'block';
+
+        } else {
+            element.href = 'login.html';
+            if(span) span.textContent = 'Iniciar sesión';
+
+            // Ocultamos el botón de logout si existe
+            const logoutButton = document.querySelector('.logout-button');
+            if (logoutButton) logoutButton.style.display = 'none';
+        }
+    });
 }
 
 function updateBurgerMenu() {
-    const navbarBurgerButtons = document.getElementById('navbar-burger-buttons');
-    const accessToken = localStorage.getItem('accessToken');
-    
-    if (accessToken) {
-        // Usuario logueado
-        navbarBurgerButtons.innerHTML = `
-            <div class="col-12">
-                <a class="link-secondary fs-11 fw-medium d-block w-100 text-center" href="#">Mi Perfil</a>
-            </div>
-            <div class="col-12"> 
-                <button class="btn btn-link link-secondary fs-11 fw-medium p-0 d-block w-100 text-center" onclick="toggleCartSidebar(); fetchCartDetails();"><i class="fa-solid fa-cart-shopping"></i></button>
-            </div>
-            <div class="col-12">
-                <button class="btn btn-sm btn-danger shadow d-block w-100" onclick="logout()">Cerrar Sesión</button>
-            </div>
-        `;
-    } else {
-        // Usuario no logueado
-        navbarBurgerButtons.innerHTML = `
-            <div class="col-12">
-                <a class="link-secondary fs-11 fw-medium d-block w-100 text-center" href="login.html">Iniciar Sesión</a>
-            </div>
-            <div class="col-12">
-                <a class="btn btn-sm btn-success shadow d-block w-100" href="register.html">Registrarse</a>
-            </div>
-        `;
-    }
+    // La lógica principal para actualizar los elementos de usuario en el menú móvil
+    // ya está cubierta por `updateNavbar` que selecciona todos los elementos con la clase `.user-login`
+    // y `.logout-button`. Esta función puede quedar vacía o usarse para lógica específica del menú burger si es necesario.
 }
 
-async function fetchProducts() {
+async function fetchProducts(searchTerm = '') {
+    const productGrid = document.getElementById('product-grid');
+    // Si no hay una grilla de productos en la página, no hacemos nada.
+    if (!productGrid) {
+        return;
+    }
+
+    let url = `${API_BASE_URL}/productos/`;
+    if (searchTerm) {
+        // Asumimos que tienes un endpoint de búsqueda en tu backend.
+        // ¡Deberás crearlo si aún no existe!
+        url = `${API_BASE_URL}/productos/buscar/?query=${encodeURIComponent(searchTerm)}`;
+    }
+
     try {
-        const response = await fetch('/productos/');
+        const response = await fetch(url); // No necesita token para ver productos
         if (response.ok) {
             const products = await response.json();
-            renderProducts(products);
+            renderProducts(products, searchTerm);
         } else {
             console.error('Error al obtener los productos:', await response.text());
-            document.getElementById('product-grid').innerHTML = '<p class="text-center">No se pudieron cargar los productos.</p>';
+            productGrid.innerHTML = '<p class="text-center">No se pudieron cargar los productos.</p>';
         }
     } catch (error) {
         console.error('Error de red:', error);
-        document.getElementById('product-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudieron cargar los productos.</p>';
+        productGrid.innerHTML = '<p class="text-center">Error de conexión. No se pudieron cargar los productos.</p>';
     }
 }
 
-function renderProducts(products) {
+function renderProducts(products, searchTerm = '') {
     const productGrid = document.getElementById('product-grid');
     productGrid.innerHTML = ''; // Limpiar el grid
 
-    if (products.length === 0) {
+    if (products.length === 0 && searchTerm) {
+        productGrid.innerHTML = `<p class="text-center">No se encontraron productos para "<strong>${searchTerm}</strong>".</p>`;
+        return;
+    }
+
+    if (products.length === 0 && !searchTerm) {
         productGrid.innerHTML = '<p class="text-center">No hay productos disponibles en este momento.</p>';
         return;
     }
@@ -125,7 +141,7 @@ async function addToCart(productId) {
     }
 
     try {
-        const response = await fetch('/carrito/mi_carrito/detalles', {
+        const response = await fetch(`${API_BASE_URL}/carrito/mi_carrito/detalles`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -142,7 +158,8 @@ async function addToCart(productId) {
             // Actualizamos la vista del carrito para que el usuario vea el cambio.
             fetchCartDetails();
             // Y abrimos el sidebar si no estaba ya abierto para mostrar el producto añadido.
-            if (!cartSidebar.classList.contains('open')) {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            if (cartSidebar && !cartSidebar.classList.contains('open')) {
                 toggleCartSidebar();
             }
         } else {
@@ -164,11 +181,15 @@ async function addToCart(productId) {
 
 // Función para alternar la visibilidad del sidebar del carrito
 function toggleCartSidebar() {
-    cartSidebar.classList.toggle('open');
+    // Obtenemos el elemento del carrito justo cuando lo necesitamos.
+    // Esto soluciona el problema de que el script se ejecute antes de que el carrito exista.
+    const cartSidebar = document.getElementById('cart-sidebar');
+    if (cartSidebar) {
+        cartSidebar.classList.toggle('open');
+    } else {
+        console.error("El elemento #cart-sidebar no se encontró en la página.");
+    }
 }
-
-// Cerrar el sidebar al hacer clic en el botón de cerrar
-document.getElementById('cart-sidebar-close').addEventListener('click', toggleCartSidebar);
 
 // Función para cargar los detalles del carrito
 async function fetchCartDetails() {
@@ -186,7 +207,7 @@ async function fetchCartDetails() {
     cartTotalContainer.innerHTML = '';
 
     try {
-        const response = await fetch('/carrito/mi_carrito/detalles', {
+        const response = await fetch(`${API_BASE_URL}/carrito/mi_carrito/detalles`, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + accessToken
@@ -275,7 +296,7 @@ async function updateCartItemQuantity(itemId, newQuantity) {
     if (!accessToken) { return; }
 
     try {
-        const response = await fetch(`/carrito/mi_carrito/detalles/${itemId}`, {
+        const response = await fetch(`${API_BASE_URL}/carrito/mi_carrito/detalles/${itemId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken },
             body: JSON.stringify({ quantity: newQuantity })
@@ -302,7 +323,7 @@ async function removeCartItem(itemId, confirmFirst = true) {
     if (!accessToken) { return; }
 
     try {
-        const response = await fetch(`/carrito/mi_carrito/detalles/${itemId}`, {
+        const response = await fetch(`${API_BASE_URL}/carrito/mi_carrito/detalles/${itemId}`, {
             method: 'DELETE',
             headers: { 'Authorization': 'Bearer ' + accessToken }
         });
@@ -327,7 +348,7 @@ async function emptyCart() {
     if (!accessToken) { return; }
 
     try {
-        const response = await fetch(`/carrito/mi_carrito/vaciar`, {
+        const response = await fetch(`${API_BASE_URL}/carrito/mi_carrito/vaciar`, {
             method: 'DELETE',
             headers: { 'Authorization': 'Bearer ' + accessToken }
         });

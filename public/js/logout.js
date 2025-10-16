@@ -1,6 +1,5 @@
 function logout() {
 			localStorage.removeItem('accessToken');
-			updateNavbar();
-			updateBurgerMenu();
-			fetchCartDetails(); // Limpia la vista del carrito
+			// Recargamos la página para que el header se actualice correctamente.
+			window.location.reload();
 		}

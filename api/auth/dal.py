@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import or_
 
 from api.core import models
 from . import schemas, security
@@ -7,26 +8,22 @@ from . import schemas, security
 
 async def get_user_by_username(db: AsyncSession, username: str):
     """Busca un usuario por su username o email."""
-    # Permite iniciar sesión con email o username
-    if '@' in username:
-        query = select(models.Usuarios).where(models.Usuarios.email == username)
-    else:
-        query = select(models.Usuarios).where(models.Usuarios.username == username)
+    # Busca por email (si contiene '@') o por nombre de usuario.
+    query = select(models.Usuarios).where(
+        or_(models.Usuarios.email == username, models.Usuarios.username == username)
+    )
     result = await db.execute(query)
     return result.scalars().first()
 
 
 async def authenticate_user(db: AsyncSession, username: str, password: str):
     """
-    Autentica un usuario contra la base de datos local.
-    Devuelve el objeto de usuario si la autenticación es exitosa, si no False.
+    Autentica a un usuario. Devuelve el objeto de usuario si es exitoso, si no None.
     """
-    # Autenticación local
-    local_user = await get_user_by_username(db, username)
-    if not local_user or not security.verify_password(password, local_user.password):
-        return None  # El usuario no existe o la contraseña es incorrecta
-
-    return local_user
+    user = await get_user_by_username(db, username)
+    if not user or not security.verify_password(password, user.password):
+        return None
+    return user
 
 
 async def create_user(db: AsyncSession, user: schemas.UserCreate):

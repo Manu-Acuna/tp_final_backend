@@ -6,60 +6,14 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" />
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+	<link rel="stylesheet" href="css/styles.css">
 	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
 </head>
 
 <body>
-	<nav class="navbar navbar-dark navbar-expand-lg bg-white py-5 py-lg-1 container">
-		<div class="container-fluid">
-			<a class="navbar-brand w-25" href="index.html">
-				<img class="img-fluid w-25" src="./images/logo.png" alt="" />
-			</a>
-			<div class="d-none d-lg-block">
-				<div class="row align-items-center g-6">
-					<div class="col-auto">
-						<a class="link-secondary fs-11 fw-medium" href="login.html">Iniciar Sesión</a>
-					</div>
-					<div class="col-auto">
-						<a class="btn btn-sm btn-success shadow" href="register.html">Registrarse</a>
-					</div>
-				</div>
-			</div>
-			<div class="d-lg-none">
-				<a class="btn navbar-burger p-0" href="#">
-					<svg width="35" height="35" viewbox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<rect class="text-light-light" width="32" height="32" rx="6" fill="currentColor"></rect>
-						<path class="text-secondary" d="M7 12H25C25.2652 12 25.5196 11.8946 25.7071 11.7071C25.8946 11.5196 26 11.2652 26 11C26 10.7348 25.8946 10.4804 25.7071 10.2929C25.5196 10.1054 25.2652 10 25 10H7C6.73478 10 6.48043 10.1054 6.29289 10.2929C6.10536 10.4804 6 10.7348 6 11C6 11.2652 6.10536 11.5196 6.29289 11.7071C6.48043 11.8946 6.73478 12 7 12ZM25 15H7C6.73478 15 6.48043 15.1054 6.29289 15.2929C6.10536 15.4804 6 15.7348 6 16C6 16.2652 6.10536 16.5196 6.29289 16.7071C6.48043 16.8946 6.73478 17 7 17H25C25.2652 17 25.5196 16.8946 25.7071 16.7071C25.8946 16.5196 26 16.2652 26 16C26 15.7348 25.8946 15.4804 25.7071 15.2929C25.5196 15.1054 25.2652 15 25 15ZM25 20H7C6.73478 20 6.48043 20.1054 6.29289 20.2929C6.10536 20.4804 6 20.7348 6 21C6 21.2652 6.10536 21.5196 6.29289 21.7071C6.48043 21.8946 6.73478 22 7 22H25C25.2652 22 25.5196 21.8946 25.7071 21.7071C25.8946 21.5196 26 21.2652 26 21C26 20.7348 25.8946 20.4804 25.7071 20.2929C25.5196 20.1054 25.2652 20 25 20Z" fill="currentColor"></path>
-					</svg>
-				</a>
-			</div>
-		</div>
-	</nav>
-	<section class="overflow-hidden">
-		<div class="d-none navbar-menu position-fixed top-0 start-0 bottom-0 w-75 mw-xs" style="z-index: 9999;">
-			<div class="navbar-backdrop position-fixed top-0 start-0 end-0 bottom-0 bg-dark" style="opacity: 75%;"></div>
-			<nav class="position-relative h-100 w-100 d-flex flex-column justify-content-between p-6 bg-white overflow-auto">
-				<div class="d-flex align-items-center">
-					<a class="me-auto h4 mb-0 text-decoration-none" href="#">
-						<img class="img-fluid w-25" src="images/logo.png" alt="" />
-					</a>
-					<a class="navbar-close text-secondary" href="#">
-						<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-						</svg>
-					</a>
-				</div>
-				<div class="row align-items-center g-6">
-					<div class="col-12">
-						<a class="link-secondary fs-11 d-block w-100 text-center fw-medium" href="login.html">Iniciar Sesión</a>
-					</div>
-					<div class="col-12">
-						<a class="btn btn-sm btn-success w-100 text-success-light shadow" href="register.html">Registrarse</a>
-					</div>
-				</div>
-			</nav>
-		</div>
-	</section>
+	<!-- Placeholder para el header reutilizable -->
+    <div id="header-placeholder"></div>
+
 	<section class="position-relative py-14 bg-white overflow-hidden">
 		<div class="position-relative container" style="z-index:1;">
 			<div class="mb-7 text-center mw-md mx-auto">
@@ -72,7 +26,7 @@
 					<div class="col-12">
 						<div class="form-group">
 							<label class="mb-1 fw-medium text-light-dark" for="nombre">Nombre*</label>
-							<input class="form-control text-secondary-dark shadow" id="nombre" type="text" placeholder="Juan Perez" />
+							<input class="form-control text-secondary-dark shadow" id="nombre" name="nombre" type="text" placeholder="Juan Perez" />
 						</div>
 					</div>
 					<div class="col-12">
@@ -121,7 +75,13 @@
 		</div>
 	</section>
 
+	<!-- Placeholder para el footer reutilizable -->
+    <div id="footer-placeholder"></div>
+
+	<script src="js/header.js"></script>
+	<script src="js/logout.js"></script>
 	<script src="js/burguer-button.js"></script>
+	<script src="js/api.js"></script>
 	<script>
 		document.getElementById('register-form').addEventListener('submit', async function (event) {
 			event.preventDefault();
@@ -131,7 +91,7 @@
 			const password = document.getElementById('contraseña').value;
 
 			try {
-				const response = await fetch('/register', {
+				const response = await fetch('http://12.7.0.0.1:8000/register', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -156,6 +116,7 @@
 			}
 		});
 	</script>
+	<script src="js/footer.js"></script>
 </body>
 
 </html>

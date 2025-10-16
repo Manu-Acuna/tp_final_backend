@@ -3,6 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from api.core import models
 from api.productos import schemas
+from sqlalchemy import or_
 
 
 async def crear_producto(db: AsyncSession, producto: schemas.ProductoCreateRequest):
@@ -102,3 +103,20 @@ async def eliminar_categoria(db: AsyncSession, categoria_id: int):
         return True
     
     return False
+
+async def buscar_productos_por_termino(db: AsyncSession, termino: str):
+    """
+    Busca productos en la base de datos cuyo nombre o descripción contenga el término de búsqueda.
+    """
+    # Usamos ilike para una búsqueda case-insensitive (ignora mayúsculas/minúsculas)
+    termino_like = f"%{termino}%"
+    result = await db.execute(
+        select(models.Productos)
+        .where(
+            or_(
+                models.Productos.name.ilike(termino_like),
+                models.Productos.description.ilike(termino_like)
+            )
+        )
+    )
+    return result.scalars().all()

@@ -22,10 +22,10 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
     )
     try:
         payload = security.jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=username)
+        token_data = schemas.TokenData(username=email) # El schema espera 'username', pero le pasamos el email
     except security.JWTError:
         raise credentials_exception
     user = await dal.get_user_by_username(db, username=token_data.username)
@@ -63,11 +63,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+    access_token = security.create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/users/me/", response_model=schemas.UserResponse, tags=["auth"])
 async def read_users_me(current_user: models.Usuarios = Depends(get_current_user)):
     return current_user
-
-

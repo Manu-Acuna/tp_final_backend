@@ -1,40 +1,36 @@
-// Burger menus
-document.addEventListener('DOMContentLoaded', function() {
-    // open
-    const burger = document.querySelectorAll('.navbar-burger');
-    const menu = document.querySelectorAll('.navbar-menu');
+/**
+ * Inicializa los listeners para el menú hamburguesa.
+ * Esta función debe ser llamada DESPUÉS de que el HTML del header haya sido inyectado en el DOM.
+ */
+function initBurgerMenuListeners() {
+    // Botón para abrir el menú
+    const burgers = document.querySelectorAll('.navbar-burger');
+    const menus = document.querySelectorAll('.navbar-menu');
 
-    if (burger.length && menu.length) {
-        for (var i = 0; i < burger.length; i++) {
-            burger[i].addEventListener('click', function() {
-                for (var j = 0; j < menu.length; j++) {
-                    menu[j].classList.toggle('d-none');
-                }
+    if (burgers.length && menus.length) {
+        burgers.forEach(burger => {
+            burger.addEventListener('click', function() {
+                menus.forEach(menu => {
+                    menu.classList.toggle('d-none');
+                });
             });
-        }
+        });
     }
 
-    // close
-    const close = document.querySelectorAll('.navbar-close');
-    const backdrop = document.querySelectorAll('.navbar-backdrop');
+    // Botón para cerrar el menú (la 'X')
+    const closes = document.querySelectorAll('.navbar-close');
+    // Fondo oscuro que también cierra el menú
+    const backdrops = document.querySelectorAll('.navbar-backdrop');
 
-    if (close.length) {
-        for (let i = 0; i < close.length; i++) {
-            close[i].addEventListener('click', function() {
-                for (var j = 0; j < menu.length; j++) {
-                    menu[j].classList.toggle('d-none');
-                }
-            });
-        }
-    }
+    const closeElements = [...closes, ...backdrops];
 
-    if (backdrop.length) {
-        for (var i = 0; i < backdrop.length; i++) {
-            backdrop[i].addEventListener('click', function() {
-                for (var j = 0; j < menu.length; j++) {
-                    menu[j].classList.toggle('d-none');
+    if (closeElements.length) {
+        closeElements.forEach(el => {
+            el.addEventListener('click', function() {
+                menus.forEach(menu => {
+                    menu.classList.toggle('d-none');
                 }
-            });
-        }
+            )});
+        });
     }
-});
+}

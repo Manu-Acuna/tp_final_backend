@@ -100,3 +100,14 @@ async def eliminar_categoria(categoria_id: int, db: AsyncSession = Depends(get_d
     if not eliminado:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
     return None
+
+@router.get("/productos/buscar/", response_model=list[schemas.ProductoResponse], summary="Buscar productos por nombre o descripción", tags=["productos"])
+async def buscar_productos(query: str, db: AsyncSession = Depends(get_db)):
+    """
+    Busca productos que coincidan con el término de búsqueda (query) 
+    en su nombre o descripción.
+    """
+    productos_encontrados = await dal.buscar_productos_por_termino(db=db, termino=query)
+    if not productos_encontrados:
+        return [] # Devuelve una lista vacía si no hay resultados
+    return productos_encontrados
