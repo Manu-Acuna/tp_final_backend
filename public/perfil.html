@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 	<title>E-commerce - perfil</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<link rel="stylesheet"href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" />
-	<link rel="stylesheet"href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" />
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
 	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
 	<style>
@@ -38,6 +41,12 @@
 		#cart-sidebar-close {
 			align-self: flex-end;
 			/* Alinea el botón de cerrar a la derecha */
+		}
+
+		#detail:checked div {
+			visibility: initial;
+			width: auto;
+			height: auto;
 		}
 	</style>
 </head>
@@ -72,7 +81,8 @@
 		<button id="cart-sidebar-close" class="btn btn-sm btn-outline-secondary mb-3">
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg"
 				viewBox="0 0 16 16">
-				<path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+				<path
+					d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
 			</svg>
 		</button>
 		<h4 class="mb-4">Mi Carrito</h4>
@@ -87,66 +97,132 @@
 
 	<!-- Sección de Productos -->
 	<section class="py-5">
-			<div id="product-grid" class="row g-6">
-				<!-- Las tarjetas de productos se insertarán aquí con JavaScript -->
-			</div>
+		<div id="user" class="row g-6">
+			<!-- Las tarjetas de productos se insertarán aquí con JavaScript -->
 		</div>
-	</section><div id="lista-pedidos"></div>
+		</div>
+	</section>
+	<div id="lista-pedidos"></div>
 	<footer></footer>
-	<script src="js/burguer-button.js"></script><script src="js/api.js"></script><script src="js/logout.js"></script>
+	<script src="js/burguer-button.js"></script>
+	<script src="js/api.js"></script>
+	<script src="js/logout.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
 			updateNavbar();
 			updateBurgerMenu();
-            loaduser();
-			obtenerYMostrarPedidos()
-		});
-		async function fetchApip(url, options = {}) {
-    const accessToken = localStorage.getItem('accessToken');
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + accessToken
-        }
-    };
-    const response = await fetch(url, { ...defaultOptions, ...options });
-    console.log(response);
+			loaduser();
+			fetchProducts();
+			obtenerYMostrarPedidos();
 
-    if (!response.ok) {
-        // En caso de error, intenta parsear la respuesta JSON para obtener el detalle.
-        const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
-        throw new Error(errorData.detail);
-    }
-    
-    if (response.status === 204) return null;
-    return response.json();
-}
+		});
+		async function fetchProducts() {
+			try {
+				const response = await fetch('/productos/');
+				if (response.ok) {
+					products = await response.json();
+					return products
+				}
+
+			} catch (error) {
+				console.error('Error de red:', error);
+				document.getElementById('product-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudieron cargar los productos.</p>';
+			}
+		}
+		async function fetchApip(url, options = {}) {
+			const accessToken = localStorage.getItem('accessToken');
+			const defaultOptions = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + accessToken
+				}
+			};
+			const response = await fetch(url, { ...defaultOptions, ...options });
+
+			if (!response.ok) {
+				// En caso de error, intenta parsear la respuesta JSON para obtener el detalle.
+				const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
+				throw new Error(errorData.detail);
+			}
+
+			if (response.status === 204) return null;
+			return response.json();
+		}
 
 		async function obtenerYMostrarPedidos() {
-    const listaPedidosElement = document.getElementById('lista-pedidos');
+			const listaPedidosElement = document.getElementById('lista-pedidos');
 
-    try {
-        const data = await fetchApip("/pedidos");
-        // Verifica si la respuesta contiene una lista de pedidos.
-        if (data) {
-            // Limpia la lista existente antes de añadir los nuevos pedidos.
-            listaPedidosElement.innerHTML = '';
-            if (data.length === 0) {
-                listaPedidosElement.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
-            } else {
-                data.forEach(pedido => {
-                    const pedidoItem = document.createElement('li');
-                    pedidoItem.textContent = `Pedido N°: ${pedido.id}},${pedido.direccion.address}`;
-                    listaPedidosElement.appendChild(pedidoItem);
-                });
-            }
-        }
-    } catch (error) {
-        console.error("Error al obtener los pedidos:", error);
-        listaPedidosElement.innerHTML = `<p style="color: red;">Error al cargar los pedidos: ${error.message}</p>`;
-    }
-}
+			try {
+				const data = await fetchApip("/pedidos");
 
+				// Verifica si la respuesta contiene una lista de pedidos.
+				if (data) {
+					// Limpia la lista existente antes de añadir los nuevos pedidos.
+					listaPedidosElement.innerHTML = '<p style="margin-left: 10px;"> Pedidos: </p>';
+					if (data.length === 0) {
+						listaPedidosElement.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
+					} else {
+						data.forEach(pedido => {
+							const pedidoItem = document.createElement('div');
+							pedidoItem.style.border = " 1px solid";
+							pedidoItem.style.maxWidth = "fit-content";
+							pedidoItem.style.maxWidth = "fit-content";
+							pedidoItem.style.padding = "4px";
+							pedidoItem.style.margin = "10px"
+							pedidoItem.innerHTML = `<span style="font-size:20px">Pedido N°: ${pedido.id}</span> <br>
+					Dirección de envio:<span style="text-transform: capitalize;"${pedido.direccion.address}</span><br> 
+					Zip_code:<span style="text-transform: uppercase;">${pedido.direccion.zip_code}</span><br>
+					Ciudad:<span style="text-transform: capitalize;">${pedido.direccion.city}</span><br>
+					Pedido realizado el:${String(pedido.date).slice(0, 10)} <br>
+					<button id="bs" style="border:0px;background-color:white;" onclick="showd()">Detalles</button>`
+							pedido.pedido_detalle.forEach(detalle => {
+								const detallei = document.createElement('div');
+								detallei.setAttribute("class", "detalle")
+								detallei.innerHTML = `<span style="font-size:smaller">Cantidad: ${detalle.quantity}</span>
+								<span style="font-weight:bold; font-size:larger">Total $${detalle.price}</span>
+								`;
+								test(detalle, pedidoItem);
+								detallei.style.visibility = "hidden";
+								detallei.style.maxHeight = "0px";
+								detallei.style.maxWidth = "0px"
+								pedidoItem.appendChild(detallei)
+							})
+								;
+							listaPedidosElement.appendChild(pedidoItem);
+						});
+					}
+				}
+			} catch (error) {
+				console.error("Error al obtener los pedidos:", error);
+				listaPedidosElement.innerHTML = `<p style="color: red;">Error al cargar los pedidos: ${error.message}</p>`;
+			}
+		}
+		function test(detalle, pedidoItem) {
+			for (i in products) {
+				if (products[i].id == detalle.product_id) {
+					console.log(products[i])
+					const productoe = document.createElement('div');
+					productoe.style.visibility = "hidden";
+					productoe.style.maxHeight = "0px";
+					productoe.style.maxWidth = "0px"
+					productoe.setAttribute("class", "detalle")
+					productoe.innerHTML = `${products[i].name} <img src="${products[i].image_url || `https://via.placeholder.com/300x200.png?text=Imagen+no+disponible`}" class="card-img-top" alt="${products[i].name}" style=" height: 150px; object-fit: contain;">`
+					pedidoItem.appendChild(productoe)
+				}
+			}
+		}
+		function showd() {
+			detaileo = document.getElementsByClassName("detalle");
+			for (element in detaileo) {
+					if (detaileo[element].name == "item"){break}
+				detaileo[element].style.visibility = "initial";
+				detaileo[element].style.maxHeight = "fit-content";
+				detaileo[element].style.maxWidth = "250px"
+			}
+			document.getElementById("bs").disabled = true;
+
+
+		}
 		//Necesario para cargar usuario
 		async function fetchApi(url, options = {}) {
 			const accessToken = localStorage.getItem('accessToken');
@@ -157,13 +233,13 @@
 				}
 			};
 			const response = await fetch(url, { ...defaultOptions, ...options });
-			alert("No logueado");
-			if (response.status==401){logout()}
+
+			if (response.status == 401) { alert("No logueado"); logout() }
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
 				throw new Error(errorData.detail);
 			}
-			
+
 			if (response.status === 204) return null;
 			return response.json();
 		}
@@ -178,32 +254,27 @@
 		async function loaduser() {
 			try {
 				const response = await fetchApi('/users/me/');
-				console.log(response)
 				if (response) {
-					products = response;
-					const productGrid = document.getElementById('product-grid');
-			productGrid.innerHTML = ''; // Limpiar el grid
+					user = response;
+					const productGrid = document.getElementById('user');
+					productGrid.innerHTML = ''; // Limpiar el grid
 
-			productGrid.innerHTML = `
-					<div class="col-12 col-md-6 col-lg-4">
-						<div class="card h-100 shadow-sm">
-							<div class="card-body d-flex flex-column">
-								<h5 class="card-title">${products.username}</h5>
-								<p class="card-text text-secondary-dark flex-grow-1">|| 'Sin descripción.'}${products.email}</p>
+					productGrid.innerHTML = `
+							<div style="margin-left: 20px;"class="d-flex flex-column">
+								<h5>Nombre de usuario: ${user.username}</h5>
+								<p >Mail: ${user.email}</p>
 							</div>
-						</div>
-					</div>
 				`;
-				} else {;console.log(response)
+				} else {
 					console.error('Error al obtener el usuario.');
-					document.getElementById('product-grid').innerHTML = '<p class="text-center">No se pudo cargar el usuario.</p>';
-					
+					document.getElementById('user').innerHTML = '<p class="text-center">No se pudo cargar el usuario.</p>';
 				}
 			} catch (error) {
 				console.error('Error de red:', error);
-				document.getElementById('product-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el usuario.</p>';
+				document.getElementById('user').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el usuario.</p>';
 			}
 		}
 	</script>
 </body>
+
 </html>
