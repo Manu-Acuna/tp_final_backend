@@ -80,13 +80,11 @@ class Categorias(Base):
 
 class PedidoDetalle(Base):
     __tablename__ = "pedidoDetalle"
-
     id = Column(Integer, primary_key=True, index=True)
     quantity = Column(Integer)
     price = Column(Float)
     order_id = Column(Integer, ForeignKey("pedidos.id"))
     product_id = Column(Integer, ForeignKey("productos.id"))
-
     pedido = relationship("Pedidos", back_populates="pedido_detalle")
     producto = relationship("Productos", back_populates="pedido_detalle")
 
