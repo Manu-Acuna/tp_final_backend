@@ -37,20 +37,26 @@
 						</h2>
 						<div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse px-4 py-2">
 							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="celulares" id="celulares">
-								<label class="form-check-label" for="celulares">
+								<input class="form-check-input" type="radio" name="category" value="1" id="notebooks-input">
+								<label class="form-check-label" for="notebooks-input">
+									Notebooks
+								</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="category" value="2" id="celulares-input">
+								<label class="form-check-label" for="celulares-input">
 									Celulares
 								</label>
 							</div>
 							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="televisores" id="televisores">
-								<label class="form-check-label" for="televisores">
+								<input class="form-check-input" type="radio" name="category" value="televisores" id="televisores-input">
+								<label class="form-check-label" for="televisores-input">
 									Televisores
 								</label>
 							</div>
 							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value="accesorios" id="accesorios">
-								<label class="form-check-label" for="accesorios">
+								<input class="form-check-input" type="radio" name="category" value="accesorios" id="accesorios-input">
+								<label class="form-check-label" for="accesorios-input">
 									Accesorios
 								</label>
 							</div>
@@ -107,15 +113,24 @@
 							<div class="d-flex gap-2">
 								<div class="input-group">
 									<span class="input-group-text">$</span>
-									<input type="text" class="form-control" aria-label="Amount (to the nearest dollar)" placeholder="Minimo"> 
+									<input type="text" class="form-control" aria-label="Precio minimo" placeholder="Minimo" id="minprice-input"> 
 								</div>
 								<div class="input-group">
 									<span class="input-group-text">$</span>
-									<input type="text" class="form-control" aria-label="Amount (to the nearest dollar)" placeholder="Maximo"> 
+									<input type="text" class="form-control" aria-label="Precio maximo" placeholder="Maximo" id="maxprice-input"> 
 								</div>
 							</div>
 						</div>	
 					</div>
+				</div>
+				<!-- Boton de aplicar filtros -->
+				<div class="d-grid gap-2 mt-4">
+					<button class="btn btn-primary" type="button" id="apply-filters-button" onclick="obtenerFiltros()">
+						Aplicar Filtros
+					</button>
+					<button class="btn btn-secondary" type="button" id="clear-filters-button" onclick="fetchProducts()">
+						Limpiar Filtros
+					</button>
 				</div>
 			</div>
 		</div>
