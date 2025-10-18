@@ -86,8 +86,11 @@ async def obtener_pedidos_de_usuario(db: AsyncSession, user_id: int) -> List[mod
     query = (
         select(models.Pedidos)
         .where(models.Pedidos.user_id == user_id)
-        .options(joinedload(models.Pedidos.direccion)) 
+        .options(
+            joinedload(models.Pedidos.direccion),
+            joinedload(models.Pedidos.pedido_detalle)
+        )
     )
     result = await db.execute(query)
-    pedidos = result.scalars().all()
+    pedidos = result.scalars().unique().all()
     return pedidos

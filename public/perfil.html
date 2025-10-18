@@ -11,6 +11,8 @@
 		href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
 	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
+	
+	<link rel="stylesheet" href="css/styles.css">
 	<style>
 		/* Estilos para el contenedor lateral del carrito */
 		#cart-sidebar {
@@ -52,7 +54,8 @@
 </head>
 
 <body>
-	<header><!--La Navbar se inserta por JavaScript--></header>
+	<!-- Placeholder para el header reutilizable -->
+    <div id="header-placeholder"></div>
 	<section class="overflow-hidden">
 		<div class="d-none navbar-menu position-fixed top-0 end-0 bottom-0 w-75 mw-xs" style="z-index: 9999;">
 			<div class="navbar-backdrop position-fixed top-0 start-0 end-0 bottom-0 bg-dark" style="opacity: 75%;">
@@ -102,9 +105,9 @@
 		</div>
 		</div>
 	</section>
-	<div id="lista-pedidos"></div>
-	<footer></footer>
-	<script src="js/burguer-button.js"></script>
+	<div id="lista-pedidos" style="display: flex;"></div>
+	    <div id="footer-placeholder"></div>
+
 	<script src="js/api.js"></script>
 	<script src="js/logout.js"></script>
 	<script>
@@ -162,7 +165,7 @@
 					if (data.length === 0) {
 						listaPedidosElement.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
 					} else {
-						data.forEach(pedido => {
+						data.forEach(pedido => { 
 							const pedidoItem = document.createElement('div');
 							pedidoItem.style.border = " 1px solid";
 							pedidoItem.style.maxWidth = "fit-content";
@@ -173,8 +176,7 @@
 					Dirección de envio:<span style="text-transform: capitalize;"${pedido.direccion.address}</span><br> 
 					Zip_code:<span style="text-transform: uppercase;">${pedido.direccion.zip_code}</span><br>
 					Ciudad:<span style="text-transform: capitalize;">${pedido.direccion.city}</span><br>
-					Pedido realizado el:${String(pedido.date).slice(0, 10)} <br>
-					<button id="bs" style="border:0px;background-color:white;" onclick="showd()">Detalles</button>`
+					Pedido realizado el:<br>${String(pedido.date).slice(0, 10)} `
 							pedido.pedido_detalle.forEach(detalle => {
 								const detallei = document.createElement('div');
 								detallei.setAttribute("class", "detalle")
@@ -200,7 +202,6 @@
 		function test(detalle, pedidoItem) {
 			for (i in products) {
 				if (products[i].id == detalle.product_id) {
-					console.log(products[i])
 					const productoe = document.createElement('div');
 					productoe.style.visibility = "hidden";
 					productoe.style.maxHeight = "0px";
@@ -263,6 +264,7 @@
 							<div style="margin-left: 20px;"class="d-flex flex-column">
 								<h5>Nombre de usuario: ${user.username}</h5>
 								<p >Mail: ${user.email}</p>
+					<button id="bs" style="border:0px;background-color:white;align-self: start;" onclick="showd()">Mostrar detalles de pedidos</button>
 							</div>
 				`;
 				} else {
@@ -273,8 +275,10 @@
 				console.error('Error de red:', error);
 				document.getElementById('user').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el usuario.</p>';
 			}
-		}
+		}	
 	</script>
+	<script defer src="js/header.js"></script>
+	<script src="js/footer.js"></script>
 </body>
 
 </html>
