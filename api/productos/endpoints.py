@@ -65,6 +65,12 @@ async def eliminar_producto(product_id: int, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return None
 
+# Filtrar productos por categoría
+@router.get("/productos/categoria/{categoria_id}", response_model=list[schemas.ProductoResponse], tags=["productos"])
+async def obtener_productos_por_categoria(categoria_id: int, db: AsyncSession = Depends(get_db)):
+    productos = await dal.obtener_productos_por_categoria(db=db, categoria_id=categoria_id)
+    return productos
+
 #Funciona
 @router.post("/categorias/", response_model=schemas.CategoriaResponse, status_code=201, tags=["categorias"])
 async def crear_categoria(categoria: schemas.CategoriaCreateRequest, db: AsyncSession = Depends(get_db)):

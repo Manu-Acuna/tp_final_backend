@@ -96,6 +96,50 @@ async function fetchProducts(searchTerm = '') {
     }
 }
 
+// funcion para filtrar productos por categoria y precio
+async function filtrarProductos(categoryID, minPrice, maxPrice) {
+    console.log('Filtrando productos con:', { categoryID, minPrice, maxPrice });
+    try {
+        const response = categoryID ? await fetch(`${API_BASE_URL}/productos/categoria/${categoryID}`) : await fetch(`${API_BASE_URL}/productos/`);
+        console.log('Response from filterProducts:', response);
+        if (response.ok) {
+            const productos = await response.json();
+            // filtrar producto por precio
+            let productosFiltrados = productos;
+            if (minPrice !== null) {
+                productosFiltrados = productosFiltrados.filter(producto => producto.price >= minPrice);
+            }
+            if (maxPrice !== null) {
+                productosFiltrados = productosFiltrados.filter(producto => producto.price <= maxPrice);
+            }
+            renderProducts(productosFiltrados);
+        } else {
+            console.error('Error al obtener el productos:', await response.text());
+            document.getElementById('producto-grid').innerHTML = '<p class="text-center">No se pudo cargar el producto.</p>';
+        }
+    } catch (error) {
+        console.error('Error de red:', error);
+        document.getElementById('producto-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el producto.</p>';
+    }
+}
+
+// Obtener los datos de los input de filtro
+function obtenerFiltros() {
+    // Como puedo obtener solo el valor del input radio seleccionado
+    const categoryInputs = document.querySelector('input[name="category"]:checked');
+    console.log(categoryInputs);
+    const categoryID = categoryInputs ? parseInt(categoryInputs.value) : null;
+    console.log('Categoria seleccionada:', categoryID);
+
+    const minPriceInput = document.getElementById('minprice-input');
+    const minPrice = minPriceInput && minPriceInput.value ? parseFloat(minPriceInput.value) : null;
+
+    const maxPriceInput = document.getElementById('maxprice-input');
+    const maxPrice = maxPriceInput && maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
+
+    filtrarProductos(categoryID, minPrice, maxPrice);
+}
+
 function renderProducts(products, searchTerm = '') {
     const productGrid = document.getElementById('product-grid');
     productGrid.innerHTML = ''; // Limpiar el grid
