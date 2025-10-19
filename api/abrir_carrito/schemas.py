@@ -19,6 +19,8 @@ class ActualizarCantidadCarritoRequest(BaseModel):
 
 # RESPONSE
 
+class PreferenciaPagoResponse(BaseModel):
+    redirect_url: str
 
 
 class CarritoResponse(BaseModel):

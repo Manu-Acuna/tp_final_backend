@@ -1,7 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List,Optional
 from datetime import datetime, date
-
 class CheckoutRequest(BaseModel):
     address_id: int
     payment_method_id: int
@@ -16,18 +15,28 @@ class PagoResponse(BaseModel):
     payment_method_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
-class PedidoDetalleResponse(BaseModel):
+class ProductoEnPedidoResponse(BaseModel):
+    id: int
+    name: str
+    image_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PedidoDetalleConProductoResponse(BaseModel):
     id: int
     quantity: int
     price: float
     order_id: int
     product_id: int
-
+    producto: ProductoEnPedidoResponse
+    
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class PedidoResponse(BaseModel):
@@ -37,10 +46,18 @@ class PedidoResponse(BaseModel):
     status: int
     user_id: int
     address_id: int
-
-    detalles:list[PedidoDetalleResponse] = []
+    detalles: List[PedidoDetalleConProductoResponse] = []
     pagos: list[PagoResponse] = []
 
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+class ListaPedidosResponse(BaseModel):
+    pedidos: List[PedidoResponse]        
+
+# Este es el esquema que faltaba
+PedidoDetalladoResponse = PedidoResponse
+
+class DatosVentas(BaseModel):
+    date: date
+    total_sales: float

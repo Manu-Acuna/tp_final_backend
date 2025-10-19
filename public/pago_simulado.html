@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Pago</title>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Placeholder para el header reutilizable -->
+    <div id="header-placeholder"></div>
+
+    <!-- Placeholder para el carrito reutilizable -->
+    <div id="cart-placeholder"></div>
+
+    <main class="d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px);">
+        <div class="container">
+            <div class="row g-5 justify-content-center">
+                <!-- Columna del formulario de pago -->
+                <div class="col-lg-6">
+                    <div class="card shadow-lg h-100">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="text-center mb-4">
+                                <h2 class="fw-bold">Finalizar Pago</h2>
+                                <p class="text-muted">Ingresa los datos de tu tarjeta.</p>
+                            </div>
+                            <form id="payment-form">
+                                <div class="mb-3">
+                                    <label for="card-number" class="form-label">Número de Tarjeta</label>
+                                    <input type="text" class="form-control" id="card-number" placeholder="0000 0000 0000 0000" pattern="[0-9]{16}" maxlength="16" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="expiry-date" class="form-label">Fecha de Vencimiento</label>
+                                        <input type="month" class="form-control" id="expiry-date" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cvv" class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cvv" placeholder="123" pattern="[0-9]{3}" maxlength="3" required>
+                                    </div>
+                                </div>
+                                <div class="d-grid mt-3">
+                                    <button type="submit" class="btn btn-primary btn-lg d-flex justify-content-center align-items-center">
+                                        <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                                        <span class="button-text">Confirmar Pago</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Columna del resumen del pedido -->
+                <div class="col-lg-5">
+                    <div class="card shadow-lg h-100">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4">Resumen del Pedido</h4>
+                            <div id="order-summary-container">
+                                <p class="text-muted">Cargando resumen...</p>
+                            </div>
+                            <hr>
+                            <div id="order-total-container" class="text-end">
+                                <!-- El total se cargará aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Placeholder para el footer reutilizable -->
+    <div id="footer-placeholder"></div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderSummary();
+
+            // Establecer la fecha mínima para el input de vencimiento
+            const expiryInput = document.getElementById('expiry-date');
+            const today = new Date();
+            const month = today.getMonth() + 1; // getMonth() es 0-indexado
+            const year = today.getFullYear();
+            // Formato YYYY-MM
+            expiryInput.min = `${year}-${month.toString().padStart(2, '0')}`;
+        });
+
+        async function loadOrderSummary() {
+            const summaryContainer = document.getElementById('order-summary-container');
+            const totalContainer = document.getElementById('order-total-container');
+            const accessToken = localStorage.getItem('accessToken');
+
+            if (!accessToken) {
+                summaryContainer.innerHTML = '<p class="text-danger">No se pudo cargar el resumen. Por favor, inicia sesión.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/carrito/mi_carrito/detalles`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (!response.ok) throw new Error('No se pudo obtener el detalle del carrito.');
+                
+                const cartDetails = await response.json();
+                
+                summaryContainer.innerHTML = '';
+                let total = 0;
+
+                if (!cartDetails || cartDetails.length === 0) {
+                    summaryContainer.innerHTML = '<p class="text-muted">Tu carrito está vacío.</p>';
+                    document.getElementById('payment-form').querySelector('button').disabled = true;
+                    return;
+                }
+
+                const listGroup = document.createElement('ul');
+			    listGroup.className = 'list-group list-group-flush';
+
+                cartDetails.forEach(item => {
+                    listGroup.innerHTML += `
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>${item.product_name} <small class="text-muted">x${item.quantity}</small></span>
+                            <span class="fw-bold">$${(item.price * item.quantity).toFixed(2)}</span>
+                        </li>`;
+                    total += item.price * item.quantity;
+                });
+                summaryContainer.appendChild(listGroup);
+                totalContainer.innerHTML = `<h4 class="fw-bold">Total: $${total.toFixed(2)}</h4>`;
+
+            } catch (error) {
+                summaryContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
+            }
+        }
+
+        document.getElementById('payment-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const button = event.target.querySelector('button');
+            const spinner = button.querySelector('.spinner-border');
+            const buttonText = button.querySelector('.button-text');
+
+            button.disabled = true;
+            spinner.classList.remove('d-none');
+            buttonText.innerText = 'Procesando...';
+            const urlParams = new URLSearchParams(window.location.search);
+            const user_id = urlParams.get('user_id');
+            const address_id = urlParams.get('address_id');
+
+            try {
+                // Esta es la llamada al webhook que confirma el pago y crea la orden.
+                const response = await fetch(`${API_BASE_URL}/pagos/webhook`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: parseInt(user_id), address_id: parseInt(address_id) })
+                });
+
+                if (!response.ok) throw new Error('Falló la confirmación del pedido.');
+
+                window.location.href = 'perfil.html'; // Redirigir al perfil para ver el pedido
+            } catch (error) {
+                alert('Error: ' + error.message);
+                button.disabled = false;
+                spinner.classList.add('d-none');
+                buttonText.innerText = 'Confirmar Pago';
+            }
+        });
+    </script>
+    <!-- Scripts de componentes reutilizables -->
+	<script src="js/header.js"></script>
+	<script src="js/cart.js"></script>
+	<script src="js/footer.js"></script>
+	<script src="js/burguer-button.js"></script>
+	<script src="js/logout.js"></script>
+</body>
+</html>

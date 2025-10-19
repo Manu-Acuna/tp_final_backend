@@ -15,15 +15,19 @@
 	<!-- Placeholder para el header reutilizable -->
     <div id="header-placeholder"></div>
 
+	<!-- Placeholder para el carrito reutilizable -->
+    <div id="cart-placeholder"></div>
+
 	<!-- Sección Principal -->
-	<section class="py-5">
+	<main class="py-5">
 		<div class="container">
-			<div class="mb-5">
-				<h2 class="font-heading fs-7">Finalizar Compra</h2>
+			<div class="text-center mb-5">
+				<h2 class="fw-bold">Finalizar Compra</h2>
+				<p class="text-muted">Revisa tu pedido y completa los datos para continuar.</p>
 			</div>
 			<div class="row g-5">
 				<!-- Columna Resumen del Pedido -->
-				<div class="col-lg-7">
+				<div class="col-lg-7 order-lg-last">
 					<div class="card shadow-sm">
 						<div class="card-body p-4">
 							<h4 class="card-title mb-4">Resumen del Pedido</h4>
@@ -39,7 +43,7 @@
 				</div>
 
 				<!-- Columna Dirección y Pago -->
-				<div class="col-lg-5">
+				<div class="col-lg-5 order-lg-first">
 					<div class="card shadow-sm mb-4">
 						<div class="card-body p-4">
 							<h4 class="card-title mb-4">Dirección de Envío</h4>
@@ -49,16 +53,16 @@
 							<!-- Formulario para nueva dirección -->
 							<div id="new-address-form" class="mt-3" style="display: none;">
 								<h5 class="mb-3">Añadir Nueva Dirección</h5>
-								<div class="mb-2">
-									<input type="text" id="new-address-street" class="form-control" placeholder="Calle y número">
+								<div class="mb-3">
+									<input type="text" id="new-address-street" class="form-control" placeholder="Calle y número" required>
 								</div>
-								<div class="mb-2">
-									<input type="text" id="new-address-city" class="form-control" placeholder="Ciudad">
+								<div class="mb-3">
+									<input type="text" id="new-address-city" class="form-control" placeholder="Ciudad" required>
 								</div>
-								<div class="mb-2">
-									<input type="text" id="new-address-zip" class="form-control" placeholder="Código Postal">
+								<div class="mb-3">
+									<input type="text" id="new-address-zip" class="form-control" placeholder="Código Postal" required>
 								</div>
-								<button class="btn btn-sm btn-secondary" onclick="saveNewAddress()">Guardar Dirección</button>
+								<button class="btn btn-sm btn-primary" onclick="saveNewAddress()">Guardar Dirección</button>
 								<button class="btn btn-sm btn-link" onclick="toggleNewAddressForm(false)">Cancelar</button>
 							</div>
 						</div>
@@ -74,17 +78,19 @@
 					</div>
 
 					<div class="d-grid mt-4">
-						<button id="pay-button" class="btn btn-lg btn-success" onclick="processPayment()" disabled>Pagar</button>
+						<button id="pay-button" class="btn btn-lg btn-primary" onclick="processPayment()" disabled>Pagar y Finalizar</button>
 					</div>
 				</div>
 			</div>
 		</div>
-	</section>
+	</main>
 
 	<!-- Placeholder para el footer reutilizable -->
     <div id="footer-placeholder"></div>
 
+	<!-- Scripts de componentes reutilizables -->
 	<script src="js/header.js"></script>
+	<script src="js/cart.js"></script>
 	<script src="js/footer.js"></script>
 	<script src="js/burguer-button.js"></script>
 	<script src="js/logout.js"></script>
@@ -120,8 +126,8 @@
 		}
 
 		async function fetchCartDetailsForOrder() {
-			try { // La función fetchApi ya usa la URL absoluta, pero lo hacemos explícito para claridad
-				const cartDetails = await fetchApi(`${API_BASE_URL}/carrito/mi_carrito/detalles`);
+			try {
+				const cartDetails = await fetchApi('/carrito/mi_carrito/detalles');
 				renderOrderSummary(cartDetails);
 			} catch (error) {
 				document.getElementById('order-summary-container').innerHTML = `<p class="text-danger">${error.message}</p>`;
@@ -140,24 +146,25 @@
 				return;
 			}
 
+			const listGroup = document.createElement('ul');
+			listGroup.className = 'list-group list-group-flush';
+
 			cartDetails.forEach(item => {
-				summaryContainer.innerHTML += `
-					<div class="d-flex justify-content-between align-items-center mb-2">
-						<div>
-							<p class="mb-0">${item.product_name} <small class="text-muted">x ${item.quantity}</small></p>
-						</div>
+				listGroup.innerHTML += `
+					<li class="list-group-item d-flex justify-content-between align-items-center px-0">
+						<span>${item.product_name} <small class="text-muted">x${item.quantity}</small></span>
 						<span>$${(item.price * item.quantity).toFixed(2)}</span>
 					</div>`;
 				total += item.price * item.quantity;
 			});
 
 			totalContainer.innerHTML = `<h4 class="fw-bold">Total: $${total.toFixed(2)}</h4>`;
+			summaryContainer.appendChild(listGroup);
 		}
 
 		async function fetchAddresses() {
 			try {
-				// NOTA: Debes crear este endpoint en tu backend.
-				const addresses = await fetchApi(`${API_BASE_URL}/usuarios/me/direcciones`);
+				const addresses = await fetchApi('/usuarios/me/direcciones');
 				renderAddresses(addresses);
 			} catch (error) {
 				document.getElementById('address-container').innerHTML = `<p class="text-danger">No se pudieron cargar las direcciones. <a href="#" onclick="toggleNewAddressForm(true)">Añadir una nueva</a></p>`;
@@ -170,15 +177,16 @@
 			if (addresses.length > 0) {
 				addresses.forEach(addr => {
 					container.innerHTML += `
-						<div class="form-check">
+						<div class="form-check border rounded p-3 mb-2">
 							<input class="form-check-input" type="radio" name="address" id="addr-${addr.id}" value="${addr.id}" onchange="checkFormValidity()">
 							<label class="form-check-label" for="addr-${addr.id}">
 								${addr.address}, ${addr.city}, ${addr.zip_code}
 							</label>
 						</div>`;
 				});
+				container.querySelector('input[name="address"]').checked = true; // Seleccionar la primera por defecto
 			}
-			container.innerHTML += `<a href="#" class="d-block mt-2" onclick="toggleNewAddressForm(true)">+ Añadir nueva dirección</a>`;
+			container.innerHTML += `<button class="btn btn-sm btn-outline-secondary mt-2" onclick="toggleNewAddressForm(true)">+ Añadir nueva dirección</button>`;
 			checkFormValidity();
 		}
 
@@ -197,8 +205,7 @@
 			}
 
 			try {
-				// NOTA: Debes crear este endpoint en tu backend.
-				await fetchApi(`${API_BASE_URL}/usuarios/me/direcciones`, {
+				await fetchApi('/usuarios/me/direcciones', {
 					method: 'POST',
 					body: JSON.stringify({ address, city, zip_code })
 				});
@@ -211,8 +218,7 @@
 
 		async function fetchPaymentMethods() {
 			try {
-				// NOTA: Debes crear este endpoint en tu backend.
-				const methods = await fetchApi(`${API_BASE_URL}/metodos_pago/`);
+				const methods = await fetchApi('/metodos_pago/');
 				renderPaymentMethods(methods);
 			} catch (error) {
 				document.getElementById('payment-method-container').innerHTML = `<p class="text-danger">No se pudieron cargar los métodos de pago.</p>`;
@@ -224,13 +230,14 @@
 			container.innerHTML = '';
 			methods.forEach(method => {
 				container.innerHTML += `
-					<div class="form-check">
+					<div class="form-check border rounded p-3 mb-2">
 						<input class="form-check-input" type="radio" name="payment" id="payment-${method.id}" value="${method.id}" onchange="checkFormValidity()">
-						<label class="form-check-label" for="payment-${method.id}">
+						<label class="form-check-label w-100" for="payment-${method.id}">
 							${method.name}
 						</label>
 					</div>`;
 			});
+			container.querySelector('input[name="payment"]').checked = true; // Seleccionar el primero por defecto
 			checkFormValidity();
 		}
 
@@ -247,17 +254,25 @@
 			document.getElementById('pay-button').disabled = true;
 			document.getElementById('pay-button').innerText = 'Procesando...';
 
-			try {
-				const result = await fetchApi(`${API_BASE_URL}/carrito/mi_carrito/finalizar_compra`, {
+			try { // 1. Llamar al nuevo endpoint para crear la preferencia de pago
+				const result = await fetchApi('/pagos/crear_preferencia', {
 					method: 'POST',
 					body: JSON.stringify({ address_id: parseInt(address_id), payment_method_id: parseInt(payment_method_id) })
 				});
-				alert(`${result.message} Tu número de pedido es: ${result.order_id}`);
-				window.location.href = 'index.html';
+
+				// 2. Redirigir al usuario a la URL de pago que nos devolvió el backend
+				if (result.redirect_url) {
+					// Usamos la ruta relativa devuelta por el backend.
+					// El navegador construirá la URL completa usando el host y puerto actuales.
+					// Por ej: http://127.0.0.1:5500/public/ + pago_simulado.html?user_id=...
+					window.location.href = result.redirect_url;
+				} else {
+					throw new Error("No se recibió una URL de pago.");
+				}
 			} catch (error) {
 				alert('Error al procesar el pago: ' + error.message);
 				document.getElementById('pay-button').disabled = false;
-				document.getElementById('pay-button').innerText = 'Pagar';
+				document.getElementById('pay-button').innerText = 'Pagar y Finalizar';
 			}
 		}
 	</script>

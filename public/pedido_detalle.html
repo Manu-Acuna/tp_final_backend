@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>E-commerce - Detalle del Pedido</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
+	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+	<link rel="stylesheet" href="css/styles.css">
+	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
+</head>
+
+<body>
+	<!-- Placeholders para componentes reutilizables -->
+    <div id="header-placeholder"></div>
+    <div id="cart-placeholder"></div>
+
+	<main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div id="order-detail-container">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Cargando detalles del pedido...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</main>
+
+	<!-- Placeholder para el footer reutilizable -->
+    <div id="footer-placeholder"></div>
+
+	<!-- Scripts -->
+	<script src="js/api.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const accessToken = localStorage.getItem('accessToken');
+			if (!accessToken) {
+				window.location.href = 'login.html';
+				return;
+			}
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+
+            if (orderId) {
+                fetchOrderDetail(orderId);
+            } else {
+                document.getElementById('order-detail-container').innerHTML = `
+                    <div class="alert alert-danger text-center">
+                        <h4>Error</h4>
+                        <p>No se especificó un número de pedido. <a href="perfil.html">Volver a mis pedidos</a>.</p>
+                    </div>`;
+            }
+		});
+
+		async function fetchApi(url, options = {}) {
+			const accessToken = localStorage.getItem('accessToken');
+			const defaultOptions = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${accessToken}`
+				}
+			};
+			const response = await fetch(`${API_BASE_URL}${url}`, { ...defaultOptions, ...options });
+			if (response.status === 401) { logout(); return; }
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
+				throw new Error(errorData.detail);
+			}
+			return response.status === 204 ? null : response.json();
+		}
+
+		async function fetchOrderDetail(orderId) {
+            const container = document.getElementById('order-detail-container');
+            try {
+                const order = await fetchApi(`/pedidos/${orderId}`);
+                renderOrderDetail(order);
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-danger text-center"><h4>Error al cargar el pedido</h4><p>${error.message}</p></div>`;
+            }
+        }
+
+        function renderOrderDetail(order) {
+            const container = document.getElementById('order-detail-container');
+            
+            let productItemsHtml = '';
+            order.detalles.forEach(item => {
+                productItemsHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="${item.producto.image_url || 'https://via.placeholder.com/60'}" alt="${item.producto.name}" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.25rem;">
+                            <div>
+                                <h6 class="my-0">${item.producto.name}</h6>
+                                <small class="text-muted">Cantidad: ${item.quantity} x $${item.price.toFixed(2)}</small>
+                            </div>
+                        </div>
+                        <span class="text-muted">$${(item.quantity * item.price).toFixed(2)}</span>
+                    </li>
+                `;
+            });
+
+            container.innerHTML = `
+                <a href="perfil.html#v-pills-orders" class="btn btn-outline-secondary btn-sm mb-4">‹ Volver a Mis Pedidos</a>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <h4 class="mb-0">Detalle del Pedido #${order.id}</h4>
+                            <p class="mb-0 text-muted">Realizado el: ${new Date(order.date).toLocaleDateString()}</p>
+                        </div>
+                        <span class="badge bg-primary rounded-pill p-2">${order.status}</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="mb-3">Productos</h5>
+                        <ul class="list-group list-group-flush mb-4">${productItemsHtml}</ul>
+                        <div class="text-end">
+                            <h4 class="fw-bold">Total: $${order.total.toFixed(2)}</h4>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+	</script>
+	<!-- Scripts de componentes reutilizables -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="js/header.js"></script>
+	<script src="js/cart.js"></script>
+	<script src="js/footer.js"></script>
+	<script src="js/burguer-button.js"></script>
+	<script src="js/logout.js"></script>
+</body>
+</html>

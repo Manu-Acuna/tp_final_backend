@@ -13,93 +13,89 @@
 <body>
 	<!-- Placeholder para el header reutilizable -->
     <div id="header-placeholder"></div>
+	
+	<main class="d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px);">
+		<div class="container py-5">
+			<div class="row justify-content-center">
+				<div class="col-12 col-md-8 col-lg-6 col-xl-5">
+					<div class="card shadow-lg p-4 p-md-5">
+						<div class="card-body">
+							<div class="mb-4 text-center">
+								<h2 class="fw-bold">Crear una Cuenta</h2>
+								<p class="text-muted">Regístrate para empezar a comprar</p>
+							</div>
 
-	<section class="position-relative py-14 bg-white overflow-hidden">
-		<div class="position-relative container" style="z-index:1;">
-			<div class="mb-7 text-center mw-md mx-auto">
-				<h2 class="font-heading mb-4 fs-7">Registrate</h2>
+							<!-- Formulario de registro -->
+							<form id="register-form">
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="nombre">Nombre*</label>
+										<input class="form-control" id="nombre" name="nombre" type="text" placeholder="Juan" required />
+									</div>
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="apellido">Apellido*</label>
+										<input class="form-control" id="apellido" name="apellido" type="text" placeholder="Pérez" required />
+									</div>
+								</div>
+								<div class="mb-3">
+									<label class="form-label" for="fecha_nacimiento">Fecha de Nacimiento*</label>
+									<input class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" type="date" required />
+								</div>
+								<div class="mb-3">
+									<label class="form-label" for="email">Email*</label>
+									<input class="form-control" id="email" name="email" type="email" placeholder="juanperez@example.com" required />
+								</div>
+								<div class="mb-3">
+									<label class="form-label" for="contraseña">Contraseña</label>
+									<input class="form-control" id="contraseña" name="password" type="password" placeholder="********" required />
+								</div>
+								<div class="d-grid mb-3">
+									<button class="btn btn-primary btn-lg" type="submit">Registrarse</button>
+								</div>
+								<div class="d-grid mb-4">
+									<a class="btn btn-outline-secondary" href="#">
+										<img class="me-2" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width: 1em; height: 1em; vertical-align: -0.125em;"/>
+										Registrarse con Google
+									</a>
+								</div>
+								<p class="text-center text-muted mb-0">
+									¿Ya tienes una cuenta?
+									<a class="fw-bold text-decoration-none" href="login.html">Inicia sesión</a>
+								</p>
+							</form>
+						</div>
+					</div>
+				</div>
 			</div>
-
-			<!-- Formulario de registro (Inputs: nombre, email, contraseña)-->
-			<form class="mw-sm mx-auto" id="register-form">
-				<div class="mb-4 row g-6">
-					<div class="col-12">
-						<div class="form-group">
-							<label class="mb-1 fw-medium text-light-dark" for="nombre">Nombre*</label>
-							<input class="form-control text-secondary-dark shadow" id="nombre" name="nombre" type="text" placeholder="Juan Perez" />
-						</div>
-					</div>
-					<div class="col-12">
-						<div class="form-group">
-							<label class="mb-1 fw-medium text-light-dark" for="email">Email</label>
-							<input class="form-control text-secondary-dark shadow" id="email" type="email" placeholder="juanperez@example.com" />
-						</div>
-					</div>
-					<div class="col-12">
-						<div class="form-group">
-							<label class="mb-1 fw-medium text-light-dark" for="contraseña">Contraseña</label>
-							<input class="form-control text-secondary-dark shadow" id="contraseña" type="password" placeholder="********" />
-						</div>
-					</div>
-				</div>
-				<div class="mb-6 row align-items-center justify-content-between g-2">
-					<div class="col-auto">
-						<div class="form-check">
-							<input class="form-check-input shadow" id="flexCheckDefault" type="checkbox" />
-							<label class="form-check-label fs-13 fw-medium text-light-dark" for="flexCheckDefault">Recordarme</label>
-						</div>
-					</div>
-					<div class="col-auto">
-						<a class="fs-13 fw-medium text-success link-success" href="#">¿Olvidaste tu contraseña?</a>
-					</div>
-				</div>
-				<div class="mb-6 row g-4">
-					<div class="col-12">
-						<button class="btn btn-lg btn-success fs-11 py-3 w-100 text-success-light shadow" type="submit">Registrarse</button>
-					</div>
-					<div class="col-12">
-						<div class="bg-white rounded">
-							<a class="btn btn-lg btn-outline-light d-flex flex-wrap align-items-center justify-content-center fs-11 py-3 w-100 text-secondary shadow" href="#"><img class="me-2" src="euphoria-assets/images/sign-up/social.svg" alt="" />
-								<span>Iniciar sesión con Google</span>
-							</a>
-						</div>
-					</div>
-				</div>
-				<p class="mb-0 fs-13 fw-medium text-light-dark text-center">
-					<span>¿Ya tienes una cuenta?</span>
-					<a class="text-success link-success" href="login.html">Iniciar sesión</a>
-				</p>
-			</form>
-			<!-- Formulario de registro -->
-			 
 		</div>
-	</section>
+	</main>
 
 	<!-- Placeholder para el footer reutilizable -->
     <div id="footer-placeholder"></div>
 
-	<script src="js/header.js"></script>
-	<script src="js/logout.js"></script>
-	<script src="js/burguer-button.js"></script>
 	<script src="js/api.js"></script>
 	<script>
 		document.getElementById('register-form').addEventListener('submit', async function (event) {
 			event.preventDefault();
 
 			const nombre = document.getElementById('nombre').value;
+			const apellido = document.getElementById('apellido').value;
+			const fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
 			const email = document.getElementById('email').value;
 			const password = document.getElementById('contraseña').value;
 
 			try {
-				const response = await fetch('http://12.7.0.0.1:8000/register', {
+				const response = await fetch(`${API_BASE_URL}/register`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
-						username: nombre,
+						nombre: nombre,
+						apellido: apellido,
+						fecha_nacimiento: fecha_nacimiento,
 						email: email,
-						password: password
+						password: password,
 					}),
 				});
 
@@ -116,6 +112,10 @@
 			}
 		});
 	</script>
+	<!-- Scripts de componentes reutilizables -->
+	<script src="js/header.js"></script>
+	<script src="js/logout.js"></script>
+	<script src="js/burguer-button.js"></script>
 	<script src="js/footer.js"></script>
 </body>
 

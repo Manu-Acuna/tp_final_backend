@@ -43,7 +43,7 @@ function updateNavbar() {
         const span = element.querySelector('span');
 
         if (accessToken) {
-            element.href = 'prueba.html'; // O la página de perfil que corresponda
+            element.href = 'perfil.html'; // O la página de perfil que corresponda
             if(span) span.textContent = 'Mi Perfil';
             
             // Mostramos el botón de logout si existe
@@ -96,6 +96,50 @@ async function fetchProducts(searchTerm = '') {
     }
 }
 
+// funcion para filtrar productos por categoria y precio
+async function filtrarProductos(categoryID, minPrice, maxPrice) {
+    console.log('Filtrando productos con:', { categoryID, minPrice, maxPrice });
+    try {
+        const response = categoryID ? await fetch(`${API_BASE_URL}/productos/categoria/${categoryID}`) : await fetch(`${API_BASE_URL}/productos/`);
+        console.log('Response from filterProducts:', response);
+        if (response.ok) {
+            const productos = await response.json();
+            // filtrar producto por precio
+            let productosFiltrados = productos;
+            if (minPrice !== null) {
+                productosFiltrados = productosFiltrados.filter(producto => producto.price >= minPrice);
+            }
+            if (maxPrice !== null) {
+                productosFiltrados = productosFiltrados.filter(producto => producto.price <= maxPrice);
+            }
+            renderProducts(productosFiltrados);
+        } else {
+            console.error('Error al obtener el productos:', await response.text());
+            document.getElementById('producto-grid').innerHTML = '<p class="text-center">No se pudo cargar el producto.</p>';
+        }
+    } catch (error) {
+        console.error('Error de red:', error);
+        document.getElementById('producto-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el producto.</p>';
+    }
+}
+
+// Obtener los datos de los input de filtro
+function obtenerFiltros() {
+    // Como puedo obtener solo el valor del input radio seleccionado
+    const categoryInputs = document.querySelector('input[name="category"]:checked');
+    console.log(categoryInputs);
+    const categoryID = categoryInputs ? parseInt(categoryInputs.value) : null;
+    console.log('Categoria seleccionada:', categoryID);
+
+    const minPriceInput = document.getElementById('minprice-input');
+    const minPrice = minPriceInput && minPriceInput.value ? parseFloat(minPriceInput.value) : null;
+
+    const maxPriceInput = document.getElementById('maxprice-input');
+    const maxPrice = maxPriceInput && maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
+
+    filtrarProductos(categoryID, minPrice, maxPrice);
+}
+
 function renderProducts(products, searchTerm = '') {
     const productGrid = document.getElementById('product-grid');
     productGrid.innerHTML = ''; // Limpiar el grid
@@ -112,15 +156,19 @@ function renderProducts(products, searchTerm = '') {
 
     products.forEach(product => {
         const productCard = `
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card h-100 shadow-sm">
-                    <img src="${product.image_url || `https://via.placeholder.com/300x200.png?text=Imagen+no+disponible`}" class="card-img-top" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain;">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">${product.name}</h5>
-                        <p class="card-text text-secondary-dark flex-grow-1">${product.description || 'Sin descripción.'}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <p class="card-text fs-5 fw-bold text-success mb-0">$${product.price.toFixed(2)}</p>
-                            <button class="btn btn-sm btn-success" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
+                    <a href="producto.html?id=${product.id}">
+                        <img src="${product.image_url || imagen_no_disponible}" class="card-img-top" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain;">
+                    </a>
+                    <div class="card-body d-flex flex-column p-3">
+                        <a href="producto.html?id=${product.id}" class="text-decoration-none text-dark flex-grow-1 mb-1">
+                            <h5 class="card-title fw-bold m-0">${product.name}</h5>
+                        </a>
+                        <p class="card-text text-muted mb-2 flex-grow-1">${product.description || 'Sin descripción.'}</p>
+                        <div class="d-flex flex-column align-items-start">
+                            <span class="card-price">$${product.price.toFixed(2)}</span>
+                            <button class="btn btn-primary w-100 mt-2 p-2 text-white rounded-pill" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
                                 ${product.stock > 0 ? 'Añadir al carrito' : 'Sin stock'}
                             </button>
                         </div>
