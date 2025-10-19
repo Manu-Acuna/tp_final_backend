@@ -100,8 +100,8 @@
 						
 						<div class="d-flex align-items-center mb-4">
 							<div class="me-3">
-								<span class="h3 fw-bold mb-0">$${product.price.toFixed(2)}</span>
-								<p class="mb-0" style="color:grey; font-size:small;">Precio s/imp. nac. $${(Number(product.price) * 0.85).toFixed(2)}</p>
+								<span class="h3 fw-bold mb-0">${formatPrice(product.price)}</span>
+								<p class="mb-0" style="color:grey; font-size:small;">Precio s/imp. nac. ${formatPrice(Number(product.price) * 0.85)}</p>
 							</div>
 							<span class="badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'} ms-auto">${product.stock > 0 ? `Stock: ${product.stock}` : 'Sin stock'}</span>
 						</div>

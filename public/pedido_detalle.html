@@ -35,6 +35,7 @@
     <div id="footer-placeholder"></div>
 
 	<!-- Scripts -->
+	<script src="js/logout.js"></script>
 	<script src="js/api.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
@@ -96,10 +97,10 @@
                             <img src="${item.producto.image_url || 'https://via.placeholder.com/60'}" alt="${item.producto.name}" class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.25rem;">
                             <div>
                                 <h6 class="my-0">${item.producto.name}</h6>
-                                <small class="text-muted">Cantidad: ${item.quantity} x $${item.price.toFixed(2)}</small>
+                                <small class="text-muted">Cantidad: ${item.quantity} x ${formatPrice(item.price)}</small>
                             </div>
                         </div>
-                        <span class="text-muted">$${(item.quantity * item.price).toFixed(2)}</span>
+                        <span class="text-muted">${formatPrice(item.quantity * item.price)}</span>
                     </li>
                 `;
             });
@@ -118,7 +119,7 @@
                         <h5 class="mb-3">Productos</h5>
                         <ul class="list-group list-group-flush mb-4">${productItemsHtml}</ul>
                         <div class="text-end">
-                            <h4 class="fw-bold">Total: $${order.total.toFixed(2)}</h4>
+                            <h4 class="fw-bold">Total: ${formatPrice(order.total)}</h4>
                         </div>
                     </div>
                 </div>
@@ -131,6 +132,5 @@
 	<script src="js/cart.js"></script>
 	<script src="js/footer.js"></script>
 	<script src="js/burguer-button.js"></script>
-	<script src="js/logout.js"></script>
 </body>
 </html>

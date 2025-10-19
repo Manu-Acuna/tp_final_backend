@@ -153,12 +153,12 @@
 				listGroup.innerHTML += `
 					<li class="list-group-item d-flex justify-content-between align-items-center px-0">
 						<span>${item.product_name} <small class="text-muted">x${item.quantity}</small></span>
-						<span>$${(item.price * item.quantity).toFixed(2)}</span>
+						<span>${formatPrice(item.price * item.quantity)}</span>
 					</div>`;
 				total += item.price * item.quantity;
 			});
 
-			totalContainer.innerHTML = `<h4 class="fw-bold">Total: $${total.toFixed(2)}</h4>`;
+			totalContainer.innerHTML = `<h4 class="fw-bold">Total: ${formatPrice(total)}</h4>`;
 			summaryContainer.appendChild(listGroup);
 		}
 

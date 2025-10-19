@@ -1,5 +1,14 @@
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
+function formatPrice(price) {
+    // Formatea el número al estilo de moneda local (Argentina), que usa '.' para miles y ',' para decimales.
+    // ej: 1500.50 -> $ 1.500,50
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS'
+    }).format(price);
+}
+
 function initApp() {
     // Esta función se llama DESPUÉS de que el header se ha cargado dinámicamente.
     updateNavbar();
@@ -209,7 +218,7 @@ function renderProducts(products, searchTerm = '') {
                         </a>
                         <p class="card-text text-muted mb-2 flex-grow-1">${product.description || 'Sin descripción.'}</p>
                         <div class="d-flex flex-column align-items-start">
-                            <span class="card-price">$${product.price.toFixed(2)}</span>
+                            <span class="card-price">${formatPrice(product.price)}</span>
                             <button class="btn btn-primary w-100 mt-2 p-2 text-white rounded-pill" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
                                 ${product.stock > 0 ? 'Añadir al carrito' : 'Sin stock'}
                             </button>
@@ -346,7 +355,7 @@ function renderCartDetails(cartDetails) {
                     <img src="${item.image_url || 'https://via.placeholder.com/50'}" alt="${item.product_name}" class="img-fluid me-3" style="width: 50px; height: 50px; object-fit: cover;">
                     <div>
                         <p class="mb-0 fw-bold" style="font-size: 0.9rem;">${item.product_name}</p>
-                        <small class="text-muted">$${item.price.toFixed(2)} c/u</small>
+                        <small class="text-muted">${formatPrice(item.price)} c/u</small>
                     </div>
                 </div>
                 <div class="d-flex flex-column align-items-end">
@@ -366,7 +375,7 @@ function renderCartDetails(cartDetails) {
 
     cartTotalContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Total: $${total.toFixed(2)}</h5>
+            <h5 class="mb-0">Total: ${formatPrice(total)}</h5>
             <div>
                 <button class="btn btn-sm btn-outline-danger me-2" onclick="emptyCart()">Vaciar Carrito</button>
                 <button class="btn btn-sm btn-primary" onclick="checkout()">Finalizar Compra</button>
