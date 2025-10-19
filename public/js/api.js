@@ -5,6 +5,8 @@ function initApp() {
     updateNavbar();
     updateBurgerMenu();
     // También inicializa los listeners del menú hamburguesa que ahora están en el header cargado.
+    // Y carga las categorías en la barra de navegación secundaria.
+    loadNavCategories();
     if (typeof initBurgerMenuListeners === 'function') {
         initBurgerMenuListeners();
     }
@@ -96,6 +98,46 @@ async function fetchProducts(searchTerm = '') {
     }
 }
 
+async function loadNavCategories() {
+    const desktopNavContainer = document.getElementById('secondary-nav-categories');
+    const mobileNavContainer = document.getElementById('mobile-nav-categories');
+
+    // Si no existe ninguno de los dos contenedores, no hacemos nada.
+    if (!desktopNavContainer && !mobileNavContainer) return;
+
+    try {
+        // Usamos el endpoint público que ya existe para las categorías
+        const response = await fetch(`${API_BASE_URL}/categorias/`);
+        if (!response.ok) {
+            throw new Error('No se pudieron cargar las categorías.');
+        }
+        const categories = await response.json();
+
+        // Generamos los enlaces para el menú de escritorio
+        let desktopLinksHtml = `<a href="index.html">Todos los Productos</a>`;
+        categories.forEach(category => {
+            desktopLinksHtml += `<a href="index.html?category_id=${category.id}">${category.name}</a>`;
+        });
+
+        // Generamos los enlaces para el menú móvil (con su clase específica)
+        let mobileLinksHtml = `<a href="index.html" class="mobile-nav-link">Todos los Productos</a>`;
+        categories.forEach(category => {
+            mobileLinksHtml += `<a href="index.html?category_id=${category.id}" class="mobile-nav-link">${category.name}</a>`;
+        });
+
+        // Poblamos los contenedores si existen
+        if (desktopNavContainer) {
+            desktopNavContainer.innerHTML = desktopLinksHtml;
+        }
+        if (mobileNavContainer) {
+            mobileNavContainer.innerHTML = mobileLinksHtml;
+        }
+
+    } catch (error) {
+        console.error('Error al cargar categorías en la navegación:', error);
+        navContainer.innerHTML = '<a href="index.html">Productos</a>'; // Fallback
+    }
+}
 // funcion para filtrar productos por categoria y precio
 async function filtrarProductos(categoryID, minPrice, maxPrice) {
     console.log('Filtrando productos con:', { categoryID, minPrice, maxPrice });

@@ -39,3 +39,8 @@ if __name__ == "__main__":
         
     user_email = sys.argv[1]
     asyncio.run(set_admin_status(user_email))
+
+
+#COMANDO PARA EJECUTARLO POR CONSOLA
+
+# python scripts/make_admin.py "ejemplo@mail.com" (sin comillas, el mail tiene que existir en la db)

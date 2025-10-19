@@ -161,6 +161,7 @@ body {
 
 /* Estilos para el carrusel de productos */
 .carrusel {
+    padding-top: 1rem;
     padding-bottom: 2rem;
     display: flex;
     justify-content: center;
@@ -380,17 +381,16 @@ footer .newsletter-input-group button:hover {
     body {
         padding-top: 80px; /* Reajustamos el padding para móvil (solo altura de top-bar) */
     }
-    .top-bar {
-        padding: 0 1rem;
-    }
     .desktop-only {
         display: none !important; /* Oculta los iconos de escritorio */
     }
     .mobile-only {
         display: block !important; /* Muestra el botón de hamburguesa */
     }
-    .header-side-panel, .search-container {
-        display: none; /* Ocultamos los paneles y la búsqueda en móvil */
+    .top-bar {
+        width: 100%;
+        padding: 0 1rem;
+        justify-content: space-between; /* Asegura que el logo y el botón se separen */
     }
     .secondary-nav {
         display: none; /* Ocultamos la nav secundaria en móvil */

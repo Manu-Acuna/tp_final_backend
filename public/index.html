@@ -196,11 +196,17 @@
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			// Comprueba si hay un término de búsqueda en la URL
-			const urlParams = new URLSearchParams(window.location.search);
-			const searchTerm = urlParams.get('search');
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchTerm = urlParams.get('search');
+            const categoryId = urlParams.get('category_id');
 
-			// initApp() se llama desde header.js después de cargar el header
-			fetchProducts(searchTerm || ''); // Pasa el término de búsqueda si existe
+            if (categoryId) {
+                // Si hay un ID de categoría, filtramos por él
+                filtrarProductos(categoryId, null, null);
+            } else {
+                // De lo contrario, hacemos una búsqueda normal o cargamos todos
+                fetchProducts(searchTerm || '');
+            }
 		});
 	</script>
 </body>
