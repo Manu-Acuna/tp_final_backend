@@ -9,6 +9,12 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" />
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&subset=latin" />
 	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
+	<style>@media (max-width: 991.98px) {
+  .filters-sidebar {
+    display: contents;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -192,7 +198,7 @@
                 fetchProducts(searchTerm || '');
             }
 		});
-
+//async function loadFilterOptions() {}
 		function limpiarFiltros() {
 			// Limpia los inputs de radio, checkboxes y precios
 			document.querySelectorAll('input[name="category"]').forEach(radio => radio.checked = false);
