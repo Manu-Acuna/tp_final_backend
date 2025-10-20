@@ -1,10 +1,21 @@
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
+function formatPrice(price) {
+    // Formatea el número al estilo de moneda local (Argentina), que usa '.' para miles y ',' para decimales.
+    // ej: 1500.50 -> $ 1.500,50
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS'
+    }).format(price);
+}
+
 function initApp() {
     // Esta función se llama DESPUÉS de que el header se ha cargado dinámicamente.
     updateNavbar();
     updateBurgerMenu();
     // También inicializa los listeners del menú hamburguesa que ahora están en el header cargado.
+    // Y carga las categorías en la barra de navegación secundaria.
+    loadNavCategories();
     if (typeof initBurgerMenuListeners === 'function') {
         initBurgerMenuListeners();
     }
@@ -43,7 +54,7 @@ function updateNavbar() {
         const span = element.querySelector('span');
 
         if (accessToken) {
-            element.href = 'prueba.html'; // O la página de perfil que corresponda
+            element.href = 'perfil.html'; // O la página de perfil que corresponda
             if(span) span.textContent = 'Mi Perfil';
             
             // Mostramos el botón de logout si existe
@@ -136,61 +147,32 @@ async function loadNavCategories() {
         navContainer.innerHTML = '<a href="index.html">Productos</a>'; // Fallback
     }
 }
-
-async function loadFilterOptions() {
-    const categoryContainer = document.getElementById('category-filters-container');
-    const brandContainer = document.getElementById('brand-filters-container');
-
-    // Cargar Categorías
-    if (categoryContainer) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/categorias/`);
-            const categories = await response.json();
-            // Añadimos la opción para ver todos los productos al principio
-            let categoriesHtml = `
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="category" value="" id="cat-filter-all" checked>
-                    <label class="form-check-label" for="cat-filter-all">Todos los Productos</label>
-                </div>`;
-            categories.forEach(cat => {
-                categoriesHtml += `
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="category" value="${cat.id}" id="cat-filter-${cat.id}">
-                        <label class="form-check-label" for="cat-filter-${cat.id}">${cat.name}</label>
-                    </div>`;
-            });
-            categoryContainer.innerHTML = categoriesHtml;
-        } catch (error) {
-            categoryContainer.innerHTML = '<p class="text-danger small">Error al cargar categorías.</p>';
+// funcion para filtrar productos por categoria y precio
+async function filtrarProductos(categoryID, minPrice, maxPrice) {
+    console.log('Filtrando productos con:', { categoryID, minPrice, maxPrice });
+    try {
+        const response = categoryID ? await fetch(`${API_BASE_URL}/productos/categoria/${categoryID}`) : await fetch(`${API_BASE_URL}/productos/`);
+        console.log('Response from filterProducts:', response);
+        if (response.ok) {
+            const productos = await response.json();
+            // filtrar producto por precio
+            let productosFiltrados = productos;
+            if (minPrice !== null) {
+                productosFiltrados = productosFiltrados.filter(producto => producto.price >= minPrice);
+            }
+            if (maxPrice !== null) {
+                productosFiltrados = productosFiltrados.filter(producto => producto.price <= maxPrice);
+            }
+            renderProducts(productosFiltrados);
+        } else {
+            console.error('Error al obtener el productos:', await response.text());
+            document.getElementById('producto-grid').innerHTML = '<p class="text-center">No se pudo cargar el producto.</p>';
         }
-    }
-
-    // Cargar Marcas
-    if (brandContainer) {
-        try {
-            // No tenemos un endpoint de marcas, así que las extraemos de los productos.
-            // Esto es menos eficiente, pero funciona sin cambiar el backend.
-            const response = await fetch(`${API_BASE_URL}/productos/`);
-            const products = await response.json();
-            const brands = [...new Set(products.map(p => p.marca).filter(m => m && m !== 'N/A'))]; // Obtenemos marcas únicas y filtramos nulos o "N/A"
-            brands.sort(); // Ordenamos alfabéticamente
-
-            let brandsHtml = '';
-            brands.forEach(brand => {
-                const brandId = brand.toLowerCase().replace(/\s+/g, '-');
-                brandsHtml += `
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="${brand}" id="brand-filter-${brandId}">
-                        <label class="form-check-label" for="brand-filter-${brandId}">${brand}</label>
-                    </div>`;
-            });
-            brandContainer.innerHTML = brandsHtml;
-        } catch (error) {
-            brandContainer.innerHTML = '<p class="text-danger small">Error al cargar marcas.</p>';
-        }
+    } catch (error) {
+        console.error('Error de red:', error);
+        document.getElementById('producto-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el producto.</p>';
     }
 }
-
 
 // Obtener los datos de los input de filtro
 function obtenerFiltros() {
@@ -198,57 +180,15 @@ function obtenerFiltros() {
     const categoryInputs = document.querySelector('input[name="category"]:checked');
     console.log(categoryInputs);
     const categoryID = categoryInputs ? parseInt(categoryInputs.value) : null;
-    
-    // Obtener marcas seleccionadas (checkboxes)
-    const brandInputs = document.querySelectorAll('#brand-filters-container input[type="checkbox"]:checked');
-    const selectedBrands = Array.from(brandInputs).map(input => input.value);
+    console.log('Categoria seleccionada:', categoryID);
 
     const minPriceInput = document.getElementById('minprice-input');
     const minPrice = minPriceInput && minPriceInput.value ? parseFloat(minPriceInput.value) : null;
 
     const maxPriceInput = document.getElementById('maxprice-input');
     const maxPrice = maxPriceInput && maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
-    
-    // Llamamos a una versión mejorada de filtrarProductos
-    filtrarProductos({ categoryID, selectedBrands, minPrice, maxPrice });
-}
 
-async function filtrarProductos({ categoryID = null, selectedBrands = [], minPrice = null, maxPrice = null }) {
-    console.log('Aplicando filtros:', { categoryID, selectedBrands, minPrice, maxPrice });
-    const productGrid = document.getElementById('product-grid');
-    productGrid.innerHTML = '<p class="text-center">Filtrando productos...</p>';
-
-    try {
-        // 1. Obtenemos todos los productos o los de una categoría específica si se seleccionó.
-        const url = categoryID 
-            ? `${API_BASE_URL}/productos/categoria/${categoryID}` 
-            : `${API_BASE_URL}/productos/`;
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('No se pudieron obtener los productos para filtrar.');
-        }
-        
-        let productos = await response.json();
-
-        // 2. Aplicamos los filtros adicionales (marcas y precio) en el frontend.
-        let productosFiltrados = productos.filter(producto => {
-            const pasaFiltroPrecioMin = minPrice === null || producto.price >= minPrice;
-            const pasaFiltroPrecioMax = maxPrice === null || producto.price <= maxPrice;
-            // Si no se seleccionaron marcas, este filtro se pasa para todos los productos.
-            // Si se seleccionaron, el producto debe pertenecer a una de ellas.
-            const pasaFiltroMarca = selectedBrands.length === 0 || selectedBrands.includes(producto.marca);
-
-            return pasaFiltroPrecioMin && pasaFiltroPrecioMax && pasaFiltroMarca;
-        });
-
-        // 3. Renderizamos los productos que pasaron todos los filtros.
-        renderProducts(productosFiltrados);
-
-    } catch (error) {
-        console.error('Error al filtrar productos:', error);
-        productGrid.innerHTML = `<p class="text-center text-danger">Error al aplicar los filtros: ${error.message}</p>`;
-    }
+    filtrarProductos(categoryID, minPrice, maxPrice);
 }
 
 function renderProducts(products, searchTerm = '') {
@@ -278,7 +218,7 @@ function renderProducts(products, searchTerm = '') {
                         </a>
                         <p class="card-text text-muted mb-2 flex-grow-1">${product.description || 'Sin descripción.'}</p>
                         <div class="d-flex flex-column align-items-start">
-                            <span class="card-price">$${product.price.toFixed(2)}</span>
+                            <span class="card-price">${formatPrice(product.price)}</span>
                             <button class="btn btn-primary w-100 mt-2 p-2 text-white rounded-pill" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
                                 ${product.stock > 0 ? 'Añadir al carrito' : 'Sin stock'}
                             </button>
@@ -415,7 +355,7 @@ function renderCartDetails(cartDetails) {
                     <img src="${item.image_url || 'https://via.placeholder.com/50'}" alt="${item.product_name}" class="img-fluid me-3" style="width: 50px; height: 50px; object-fit: cover;">
                     <div>
                         <p class="mb-0 fw-bold" style="font-size: 0.9rem;">${item.product_name}</p>
-                        <small class="text-muted">$${item.price.toFixed(2)} c/u</small>
+                        <small class="text-muted">${formatPrice(item.price)} c/u</small>
                     </div>
                 </div>
                 <div class="d-flex flex-column align-items-end">
@@ -435,7 +375,7 @@ function renderCartDetails(cartDetails) {
 
     cartTotalContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Total: $${total.toFixed(2)}</h5>
+            <h5 class="mb-0">Total: ${formatPrice(total)}</h5>
             <div>
                 <button class="btn btn-sm btn-outline-danger me-2" onclick="emptyCart()">Vaciar Carrito</button>
                 <button class="btn btn-sm btn-primary" onclick="checkout()">Finalizar Compra</button>

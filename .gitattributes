@@ -1,3 +1,2 @@
-# Manejar automáticamente los finales de línea para asegurar consistencia en el repositorio.
-# Git convertirá los finales de línea a LF al hacer commit.
+# Auto detect text files and perform LF normalization
 * text=auto

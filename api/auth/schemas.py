@@ -1,30 +1,31 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import date
 
 
-# Esquema para la creación de un usuario
-class UserCreate(BaseModel):
-    username: str
+class UserBase(BaseModel):
     email: EmailStr
+    nombre: str
+    apellido: str
+
+
+class UserCreate(UserBase):
     password: str
+    fecha_nacimiento: date
 
 
-# Esquema para mostrar la información de un usuario (sin la contraseña)
-class UserResponse(BaseModel):
+class UserResponse(UserBase):
     id: int
-    username: str
-    email: EmailStr
+    is_admin: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
-# Esquema para el token JWT
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
-
+    email: Optional[str] = None

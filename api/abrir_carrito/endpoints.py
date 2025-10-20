@@ -173,78 +173,31 @@ async def vaciar_carrito_del_usuario(db: AsyncSession = Depends(get_db), current
     return 
 
 
-@router.post("/carrito/mi_carrito/finalizar_compra", response_model=schemas.FinalizarCompraResponse, summary="Finalizar la compra y crear un pedido", tags=["Carrito"])
-async def finalizar_compra(
+@router.post("/pagos/crear_preferencia", response_model=schemas.PreferenciaPagoResponse, summary="Crear una preferencia de pago", tags=["Pagos"])
+async def crear_preferencia_pago(
     request_data: schemas.FinalizarCompraRequest,
     db: AsyncSession = Depends(get_db), 
     current_user: models.Usuarios = Depends(get_current_user)
 ):
-    # 1. Get user's cart and items
+    """
+    Simula la creación de una preferencia de pago en una pasarela externa.
+    Valida el carrito y el stock, y si todo está OK, devuelve una URL a una
+    página de pago simulada.
+    """
     carrito = await dal.obtener_o_crear_carrito(db=db, user_id=current_user.id)
     items_carrito = await dal.obtener_detalle_carrito(db=db, carrito_id=carrito.id)
 
     if not items_carrito:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito está vacío.")
 
-    # 2. Check stock for all items before starting the transaction
     for item in items_carrito:
         producto = await productos_dal.obtener_producto_por_id(db=db, product_id=item.product_id)
         if not producto or producto.stock < item.quantity:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Stock insuficiente para el producto '{producto.name if producto else 'ID:'+str(item.product_id)}'. Stock disponible: {producto.stock if producto else 'N/A'}"
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Stock insuficiente para {producto.name if producto else 'un producto'}.")
+
+    # En un caso real, aquí se interactuaría con la API de MercadoPago/Stripe.
+    # Para simular, creamos una URL a una página de pago ficticia.
+    # Devolvemos una ruta relativa que el frontend usará para redirigir.
+    redirect_url = f"pago_simulado.html?user_id={current_user.id}&address_id={request_data.address_id}"
     
-    # 3. Validar Dirección y Método de Pago
-    direccion = await db.get(models.DireccionesEnvio, request_data.address_id)
-    if not direccion or direccion.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="La dirección de envío no fue encontrada o no pertenece al usuario."
-        )
-
-    metodo_pago = await db.get(models.MetodosPago, request_data.payment_method_id)
-    if not metodo_pago:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="El método de pago no fue encontrado."
-        )
-
-    # 3. Calculate total
-    total_pedido = await dal.calcular_total_carrito(db=db, carrito_id=carrito.id)
-
-    try:
-        # Create the Order
-        nuevo_pedido = models.Pedidos(
-            user_id=current_user.id,
-            date=datetime.now(timezone.utc),
-            total=total_pedido,
-            status=PedidoStatus.PROCESANDO.value,
-            address_id=request_data.address_id
-        )
-        db.add(nuevo_pedido)
-        await db.flush()  # Flush to get the new order's ID
-
-        # Create Order Details and update stock
-        for item in items_carrito:
-            db.add(models.PedidoDetalle(order_id=nuevo_pedido.id, product_id=item.product_id, quantity=item.quantity, price=item.price))
-            producto = await productos_dal.obtener_producto_por_id(db, item.product_id)
-            producto.stock -= item.quantity
-
-        # 6. Crear el registro del Pago (¡ESTA ES LA PARTE QUE FALTABA!)
-        nuevo_pago = models.Pagos(
-            order_id=nuevo_pedido.id,
-            payment_method_id=request_data.payment_method_id,
-            amount=total_pedido,
-            date=datetime.now(timezone.utc),
-            status=PagoStatus.APROBADO.value # Asumimos que el pago es aprobado inmediatamente
-        )
-        db.add(nuevo_pago)
-
-        await dal.vaciar_carrito_completo(db, carrito.id)
-        await db.commit()
-        await db.refresh(nuevo_pedido)
-    except Exception as e:
-        await db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Ocurrió un error al procesar el pedido: {str(e)}")
-
-    return {"message": "¡Compra finalizada con éxito!", "order_id": nuevo_pedido.id}
+    return {"redirect_url": redirect_url}

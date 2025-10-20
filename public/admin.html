@@ -72,10 +72,6 @@
                                         <label for="product-description" class="form-label">Descripción</label>
                                         <textarea class="form-control" id="product-description" rows="3"></textarea>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="product-brand" class="form-label">Marca</label>
-                                        <input type="text" class="form-control" id="product-brand" required>
-                                    </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="product-price" class="form-label">Precio</label>
@@ -268,7 +264,6 @@
             document.getElementById('product-id').value = product.id;
             document.getElementById('product-name').value = product.name;
             document.getElementById('product-description').value = product.description;
-            document.getElementById('product-brand').value = product.marca;
             document.getElementById('product-price').value = product.price;
             document.getElementById('product-stock').value = product.stock;
             document.getElementById('product-image').value = product.image_url;
@@ -327,7 +322,6 @@
             const productData = {
                 name: document.getElementById('product-name').value,
                 description: document.getElementById('product-description').value,
-                marca: document.getElementById('product-brand').value,
                 price: parseFloat(document.getElementById('product-price').value),
                 stock: parseInt(document.getElementById('product-stock').value),
                 image_url: document.getElementById('product-image').value,

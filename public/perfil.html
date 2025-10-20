@@ -1,284 +1,157 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 	<title>E-commerce - perfil</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<link rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" />
-	<link rel="stylesheet"
-		href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Outfit:400,500,600,700,800,900&amp;subset=latin" />
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
-	
 	<link rel="stylesheet" href="css/styles.css">
-	<style>
-		/* Estilos para el contenedor lateral del carrito */
-		#cart-sidebar {
-			position: fixed;
-			top: 0;
-			right: -350px;
-			/* Oculto por defecto */
-			width: 350px;
-			height: 100%;
-			background-color: #f8f9fa;
-			/* Color de fondo claro */
-			box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-			transition: right 0.3s ease-in-out;
-			z-index: 1050;
-			/* Asegura que esté por encima de otros elementos */
-			overflow-y: auto;
-			/* Permite scroll si el contenido es largo */
-			padding: 20px;
-			display: flex;
-			flex-direction: column;
-		}
-
-		#cart-sidebar.open {
-			right: 0;
-			/* Visible */
-		}
-
-		#cart-sidebar-close {
-			align-self: flex-end;
-			/* Alinea el botón de cerrar a la derecha */
-		}
-
-		#detail:checked div {
-			visibility: initial;
-			width: auto;
-			height: auto;
-		}
-	</style>
+	<link rel="icon" type="image/png" sizes="48x48" href="./favicon.png" />
 </head>
 
 <body>
 	<!-- Placeholder para el header reutilizable -->
     <div id="header-placeholder"></div>
-	<section class="overflow-hidden">
-		<div class="d-none navbar-menu position-fixed top-0 end-0 bottom-0 w-75 mw-xs" style="z-index: 9999;">
-			<div class="navbar-backdrop position-fixed top-0 start-0 end-0 bottom-0 bg-dark" style="opacity: 75%;">
+
+	<!-- Placeholder para el carrito reutilizable -->
+    <div id="cart-placeholder"></div>
+
+	<main class="container py-5" style="min-height: 500px;">
+		<div class="row">
+			<!-- Columna de Navegación -->
+			<div class="col-md-3">
+				<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+					<button class="nav-link active text-start" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="true">Mi Perfil</button>
+					<button class="nav-link text-start" id="v-pills-orders-tab" data-bs-toggle="pill" data-bs-target="#v-pills-orders" type="button" role="tab" aria-controls="v-pills-orders" aria-selected="false">Mis Pedidos</button>
+					<button class="nav-link text-start" onclick="logout()">Cerrar Sesión</button>
+				</div>
 			</div>
-			<nav class="position-relative h-100 w-100 d-flex flex-column p-6 bg-white overflow-auto">
-				<div class="d-flex align-items-center mb-5">
-					<a class="me-auto h4 mb-0 text-decoration-none" href="#">
-						<img class="img-fluid w-25" src="images/logo.png" alt="" />
-					</a>
-					<a class="navbar-close text-secondary" href="#">
-						<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round"></path>
-						</svg>
-					</a>
-				</div>
-				<div id="navbar-burger-buttons" class="row align-items-center g-6">
-					<!-- Los botones del menú burguer se insertarán aquí -->
-				</div>
-			</nav>
-		</div>
-	</section>
 
-	<!-- Contenedor lateral del carrito -->
-	<div id="cart-sidebar">
-		<button id="cart-sidebar-close" class="btn btn-sm btn-outline-secondary mb-3">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg"
-				viewBox="0 0 16 16">
-				<path
-					d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
-			</svg>
-		</button>
-		<h4 class="mb-4">Mi Carrito</h4>
-		<div id="cart-items-container" class="flex-grow-1">
-			<!-- Los items del carrito se cargarán aquí -->
-			<p class="text-muted">Cargando carrito...</p>
+			<!-- Columna de Contenido -->
+			<div class="col-md-9">
+				<div class="tab-content" id="v-pills-tabContent">
+					<!-- Contenido de Mi Perfil -->
+					<div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+						<div class="card shadow-sm">
+							<div class="card-body" id="profile-content">
+								<p class="text-muted">Cargando información del perfil...</p>
+							</div>
+						</div>
+					</div>
+					<!-- Contenido de Mis Pedidos -->
+					<div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab">
+						<div class="card shadow-sm">
+							<div class="card-body" id="orders-content">
+								<p class="text-muted">Cargando historial de pedidos...</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div id="cart-total" class="mt-4 pt-3 border-top">
-			<!-- El total del carrito se mostrará aquí -->
-		</div>
-	</div>
+	</main>
 
-	<!-- Sección de Productos -->
-	<section class="py-5">
-		<div id="user" class="row g-6">
-			<!-- Las tarjetas de productos se insertarán aquí con JavaScript -->
-		</div>
-		</div>
-	</section>
-	<div id="lista-pedidos" style="display: flex;"></div>
-	    <div id="footer-placeholder"></div>
+	<!-- Placeholder para el footer reutilizable -->
+    <div id="footer-placeholder"></div>
 
 	<script src="js/api.js"></script>
 	<script src="js/logout.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
-			updateNavbar();
-			updateBurgerMenu();
-			loaduser();
-			fetchProducts();
-			obtenerYMostrarPedidos();
-
-		});
-		async function fetchProducts() {
-			try {
-				const response = await fetch('/productos/');
-				if (response.ok) {
-					products = await response.json();
-					return products
-				}
-
-			} catch (error) {
-				console.error('Error de red:', error);
-				document.getElementById('product-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudieron cargar los productos.</p>';
-			}
-		}
-		async function fetchApip(url, options = {}) {
 			const accessToken = localStorage.getItem('accessToken');
-			const defaultOptions = {
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + accessToken
-				}
-			};
-			const response = await fetch(url, { ...defaultOptions, ...options });
-
-			if (!response.ok) {
-				// En caso de error, intenta parsear la respuesta JSON para obtener el detalle.
-				const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
-				throw new Error(errorData.detail);
+			if (!accessToken) {
+				window.location.href = 'login.html';
+				return;
 			}
+			// initApp() se llama desde header.js, que a su vez llama a updateNavbar, etc.
+            loadUser();
+			loadOrders();
+		});
 
-			if (response.status === 204) return null;
-			return response.json();
-		}
-
-		async function obtenerYMostrarPedidos() {
-			const listaPedidosElement = document.getElementById('lista-pedidos');
-
-			try {
-				const data = await fetchApip("/pedidos");
-
-				// Verifica si la respuesta contiene una lista de pedidos.
-				if (data) {
-					// Limpia la lista existente antes de añadir los nuevos pedidos.
-					listaPedidosElement.innerHTML = '<p style="margin-left: 10px;"> Pedidos: </p>';
-					if (data.length === 0) {
-						listaPedidosElement.innerHTML = '<p>No tienes pedidos realizados aún.</p>';
-					} else {
-						data.forEach(pedido => { 
-							const pedidoItem = document.createElement('div');
-							pedidoItem.style.border = " 1px solid";
-							pedidoItem.style.maxWidth = "fit-content";
-							pedidoItem.style.maxWidth = "fit-content";
-							pedidoItem.style.padding = "4px";
-							pedidoItem.style.margin = "10px"
-							pedidoItem.innerHTML = `<span style="font-size:20px">Pedido N°: ${pedido.id}</span> <br>
-					Dirección de envio:<span style="text-transform: capitalize;"${pedido.direccion.address}</span><br> 
-					Zip_code:<span style="text-transform: uppercase;">${pedido.direccion.zip_code}</span><br>
-					Ciudad:<span style="text-transform: capitalize;">${pedido.direccion.city}</span><br>
-					Pedido realizado el:<br>${String(pedido.date).slice(0, 10)} `
-							pedido.pedido_detalle.forEach(detalle => {
-								const detallei = document.createElement('div');
-								detallei.setAttribute("class", "detalle")
-								detallei.innerHTML = `<span style="font-size:smaller">Cantidad: ${detalle.quantity}</span>
-								<span style="font-weight:bold; font-size:larger">Total $${detalle.price}</span>
-								`;
-								test(detalle, pedidoItem);
-								detallei.style.visibility = "hidden";
-								detallei.style.maxHeight = "0px";
-								detallei.style.maxWidth = "0px"
-								pedidoItem.appendChild(detallei)
-							})
-								;
-							listaPedidosElement.appendChild(pedidoItem);
-						});
-					}
-				}
-			} catch (error) {
-				console.error("Error al obtener los pedidos:", error);
-				listaPedidosElement.innerHTML = `<p style="color: red;">Error al cargar los pedidos: ${error.message}</p>`;
-			}
-		}
-		function test(detalle, pedidoItem) {
-			for (i in products) {
-				if (products[i].id == detalle.product_id) {
-					const productoe = document.createElement('div');
-					productoe.style.visibility = "hidden";
-					productoe.style.maxHeight = "0px";
-					productoe.style.maxWidth = "0px"
-					productoe.setAttribute("class", "detalle")
-					productoe.innerHTML = `${products[i].name} <img src="${products[i].image_url || `https://via.placeholder.com/300x200.png?text=Imagen+no+disponible`}" class="card-img-top" alt="${products[i].name}" style=" height: 150px; object-fit: contain;">`
-					pedidoItem.appendChild(productoe)
-				}
-			}
-		}
-		function showd() {
-			detaileo = document.getElementsByClassName("detalle");
-			for (element in detaileo) {
-					if (detaileo[element].name == "item"){break}
-				detaileo[element].style.visibility = "initial";
-				detaileo[element].style.maxHeight = "fit-content";
-				detaileo[element].style.maxWidth = "250px"
-			}
-			document.getElementById("bs").disabled = true;
-
-
-		}
-		//Necesario para cargar usuario
+		// Función unificada para hacer llamadas a la API con autenticación
 		async function fetchApi(url, options = {}) {
 			const accessToken = localStorage.getItem('accessToken');
 			const defaultOptions = {
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + accessToken
+					'Authorization': `Bearer ${accessToken}`
 				}
 			};
-			const response = await fetch(url, { ...defaultOptions, ...options });
+			
+			const response = await fetch(`${API_BASE_URL}${url}`, { ...defaultOptions, ...options });
 
-			if (response.status == 401) { alert("No logueado"); logout() }
+			if (response.status === 401) {
+				// Token inválido o expirado, desloguear al usuario.
+				logout();
+				return; // Detener la ejecución
+			}
+
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
 				throw new Error(errorData.detail);
 			}
+			
+			return response.status === 204 ? null : response.json();
+		}
 
-			if (response.status === 204) return null;
-			return response.json();
-		}
-		function logout() {
-			localStorage.removeItem('accessToken');
-			updateNavbar();
-			updateBurgerMenu();
-			fetchCartDetails(); // Limpia la vista del carrito
-			window.location.href = 'index.html';
-		}
-		// consigo el usuario 
-		async function loaduser() {
+		// Carga y muestra la información del usuario
+		async function loadUser() {
+			const profileContent = document.getElementById('profile-content');
 			try {
-				const response = await fetchApi('/users/me/');
-				if (response) {
-					user = response;
-					const productGrid = document.getElementById('user');
-					productGrid.innerHTML = ''; // Limpiar el grid
-
-					productGrid.innerHTML = `
-							<div style="margin-left: 20px;"class="d-flex flex-column">
-								<h5>Nombre de usuario: ${user.username}</h5>
-								<p >Mail: ${user.email}</p>
-					<button id="bs" style="border:0px;background-color:white;align-self: start;" onclick="showd()">Mostrar detalles de pedidos</button>
-							</div>
+				const user = await fetchApi('/users/me/');
+				profileContent.innerHTML = `
+					<h4 class="card-title mb-4">Información Personal</h4>
+					<p><strong>Nombre:</strong> ${user.nombre} ${user.apellido}</p>
+					<p><strong>Email:</strong> ${user.email}</p>
+					<button class="btn btn-sm btn-outline-primary">Editar Perfil</button>
 				`;
+			} catch (error) {
+				console.error('Error al cargar el perfil:', error);
+				profileContent.innerHTML = `<p class="text-danger">Error al cargar el perfil: ${error.message}</p>`;
+			}
+		}
+
+		// Carga y muestra el historial de pedidos
+		async function loadOrders() {
+			const ordersContent = document.getElementById('orders-content');
+			try {
+				const orders = await fetchApi("/pedidos");
+				ordersContent.innerHTML = '<h4 class="card-title mb-4">Historial de Pedidos</h4>';
+
+				if (orders && orders.length > 0) {
+					const ordersList = document.createElement('div');
+					ordersList.className = 'list-group';
+					orders.forEach(order => {
+						const orderItem = document.createElement('a');
+						orderItem.href = `pedido_detalle.html?id=${order.id}`;
+						orderItem.className = 'list-group-item list-group-item-action flex-column align-items-start';
+						orderItem.innerHTML = `
+							<div class="d-flex w-100 justify-content-between">
+								<h5 class="mb-1">Pedido #${order.id}</h5>
+								<small>${new Date(order.date).toLocaleDateString()}</small>
+							</div>
+							<p class="mb-1">Total: <strong>$${order.total.toFixed(2)}</strong></p>
+							<small>Estado: ${order.status}</small>
+						`;
+						ordersList.appendChild(orderItem);
+					});
+					ordersContent.appendChild(ordersList);
 				} else {
-					console.error('Error al obtener el usuario.');
-					document.getElementById('user').innerHTML = '<p class="text-center">No se pudo cargar el usuario.</p>';
+					ordersContent.innerHTML += '<p>No tienes pedidos realizados aún.</p>';
 				}
 			} catch (error) {
-				console.error('Error de red:', error);
-				document.getElementById('user').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el usuario.</p>';
+				console.error("Error al obtener los pedidos:", error);
+				ordersContent.innerHTML = `<p class="text-danger">Error al cargar los pedidos: ${error.message}</p>`;
 			}
-		}	
+		}
 	</script>
-	<script defer src="js/header.js"></script>
+	<!-- Scripts de componentes reutilizables -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="js/header.js"></script>
+	<script src="js/cart.js"></script>
 	<script src="js/footer.js"></script>
+	<script src="js/burguer-button.js"></script>
 </body>
-
 </html>

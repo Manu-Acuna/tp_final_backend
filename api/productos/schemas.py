@@ -8,7 +8,6 @@ class ProductoCreateRequest(BaseModel):
     name: str
     description: str
     price: int
-    marca: str
     stock: int
     image_url: Optional[str] = None
     category_id: int
@@ -18,7 +17,6 @@ class ProductoUpdateRequest(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[int] = None
-    marca: Optional[str] = None
     stock: Optional[int] = None
     image_url: Optional[str] = None
     category_id: Optional[int] = None
@@ -35,7 +33,6 @@ class ProductoResponse(BaseModel):
     name: str
     description: str
     price: int
-    marca: str
     stock: int
     image_url: Optional[str] = None
     category_id: int

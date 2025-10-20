@@ -18,13 +18,23 @@ class PagoResponse(BaseModel):
         from_attributes = True
 
 
-class PedidoDetalleResponse(BaseModel):
+class ProductoEnPedidoResponse(BaseModel):
+    id: int
+    name: str
+    image_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PedidoDetalleConProductoResponse(BaseModel):
     id: int
     quantity: int
     price: float
     order_id: int
     product_id: int
-
+    producto: ProductoEnPedidoResponse
+    
     class Config:
         from_attributes = True
 
@@ -36,7 +46,7 @@ class PedidoResponse(BaseModel):
     status: int
     user_id: int
     address_id: int
-    detalles:list[PedidoDetalleResponse] = []
+    detalles: List[PedidoDetalleConProductoResponse] = []
     pagos: list[PagoResponse] = []
 
 
@@ -44,3 +54,10 @@ class PedidoResponse(BaseModel):
         from_attributes = True
 class ListaPedidosResponse(BaseModel):
     pedidos: List[PedidoResponse]        
+
+# Este es el esquema que faltaba
+PedidoDetalladoResponse = PedidoResponse
+
+class DatosVentas(BaseModel):
+    date: date
+    total_sales: float

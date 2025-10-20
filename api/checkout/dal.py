@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from api.productos.dal import obtener_producto_por_id
 from api.core.enum import PedidoStatus, PagoStatus
+from sqlalchemy import func
 from api.core.dal import obtener_direccion_envio_por_id_y_usuario, obtener_metodo_pago_tipo_por_id
 from api.abrir_carrito.dal import obtener_carrito_por_usuario_id, obtener_detalle_carrito, vaciar_carrito_completo
 
@@ -81,16 +82,33 @@ async def procesar_checkout(db: AsyncSession, user_id: int, address_id: int, pay
     except Exception as e:
         await db.rollback()
         raise e
-async def obtener_pedidos_de_usuario(db: AsyncSession, user_id: int) -> List[models.Pedidos]:
+async def obtener_pedidos_de_usuario(db: AsyncSession, user_id: int, es_admin: bool = False) -> List[models.Pedidos]:
     """Obtiene todos los pedidos de un usuario específico con la direccion del pedido."""
-    query = (
-        select(models.Pedidos)
-        .where(models.Pedidos.user_id == user_id)
-        .options(
-            joinedload(models.Pedidos.direccion),
-            joinedload(models.Pedidos.pedido_detalle)
-        )
+    query = select(models.Pedidos).options(
+        joinedload(models.Pedidos.direccion),
+        joinedload(models.Pedidos.detalles)
     )
+
+    if not es_admin:
+        query = query.where(models.Pedidos.user_id == user_id)
+
+    query = query.order_by(models.Pedidos.id.desc())
+
     result = await db.execute(query)
     pedidos = result.scalars().unique().all()
     return pedidos
+
+async def obtener_datos_ventas_por_fecha(db: AsyncSession):
+    """
+    Agrega las ventas totales de pedidos por fecha.
+    """
+    result = await db.execute(
+        select(
+            func.date(models.Pedidos.date).label("sale_date"),
+            func.sum(models.Pedidos.total).label("total_sales")
+        )
+        # Puedes filtrar por estado si lo necesitas, ej: .where(models.Pedidos.status == 'completado')
+        .group_by(func.date(models.Pedidos.date))
+        .order_by(func.date(models.Pedidos.date).asc())
+    )
+    return result.all()
