@@ -94,16 +94,24 @@ body {
     text-decoration: none;
     color: #333;
 }
-
+.cart-icon:hover,
 .user-login:hover {
     color: #007bff;
 }
 
-.cart-icon, .logout-button {
+.cart-icon,
+.logout-button {
+    background: none;
+    border: none;
+    padding: 0;
     color: #333;
+    text-decoration: none;
+    cursor: pointer;
 }
-.cart-icon:hover, .logout-button:hover {
-    color: #007bff;
+
+.logout-button:hover {
+    color: red;
+    text-decoration: none;
 }
 
 .header-side-panel .user-actions {
@@ -486,6 +494,14 @@ footer .newsletter-input-group button:hover {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.mobile-nav-body a {
+    text-decoration: none;
+    color: #333; /* Color de texto oscuro, igual que la navegación principal */
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 0.5rem 0;
 }
 
 /* Estilos para la barra lateral de filtros fija */
