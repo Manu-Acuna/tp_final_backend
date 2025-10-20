@@ -1,9 +1,17 @@
 import asyncio
 import sys
+import json
+import os
+import sys
+
+# --- Configuración para poder importar desde la carpeta 'api' ---
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
 from sqlalchemy.future import select
 
-# Asegúrate de que las rutas de importación sean correctas desde la raíz de tu proyecto
+# Asegúrar de que las rutas de importación sean correctas desde la raíz
 from api.core.database import AsyncSessionLocal
+
 from api.core import models
 
 async def set_admin_status(email: str, is_admin: bool = True):
