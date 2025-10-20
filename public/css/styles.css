@@ -179,9 +179,20 @@ body {
     margin: auto; /* Centra la imagen en el carrusel */
 }
 
+.container{
+    width: 100%;
+    margin: 0 auto;
+}
+
 .row{
 	width: 100%;
-	margin: 20px auto;
+	margin: 0 auto 40px auto;
+}
+
+.container-wide {
+    width: 90%;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .row .flex-container{
@@ -490,3 +501,20 @@ footer .newsletter-input-group button:hover {
 
 /* Ocultar la barra de filtros en móvil */
 @media (max-width: 991.98px) { .filters-sidebar { display: none; } }
+
+/* Estilos para las tarjetas de categoría */
+.category-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #e9ecef;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.category-card .card-img-top {
+    height: 200px;
+    object-fit: contain; /* Para que la imagen se vea completa sin deformarse */
+    padding: 1rem;
+}

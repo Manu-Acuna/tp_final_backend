@@ -278,7 +278,7 @@ function renderProducts(products, searchTerm = '') {
 
     products.forEach(product => {
         const productCard = `
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+            <div class="col">
                 <div class="card h-100 shadow-sm">
                     <a href="producto.html?id=${product.id}">
                         <img src="${product.image_url || imagen_no_disponible}" class="card-img-top" alt="${product.name}" style="width: 100%; height: 180px; object-fit: contain;">
@@ -296,7 +296,6 @@ function renderProducts(products, searchTerm = '') {
                         </div>
                     </div>
                 </div>
-            </div>
         `;
         productGrid.innerHTML += productCard;
     });
