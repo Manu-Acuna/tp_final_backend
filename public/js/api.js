@@ -96,32 +96,101 @@ async function fetchProducts(searchTerm = '') {
     }
 }
 
-// funcion para filtrar productos por categoria y precio
-async function filtrarProductos(categoryID, minPrice, maxPrice) {
-    console.log('Filtrando productos con:', { categoryID, minPrice, maxPrice });
+async function loadNavCategories() {
+    const desktopNavContainer = document.getElementById('secondary-nav-categories');
+    const mobileNavContainer = document.getElementById('mobile-nav-categories');
+
+    // Si no existe ninguno de los dos contenedores, no hacemos nada.
+    if (!desktopNavContainer && !mobileNavContainer) return;
+
     try {
-        const response = categoryID ? await fetch(`${API_BASE_URL}/productos/categoria/${categoryID}`) : await fetch(`${API_BASE_URL}/productos/`);
-        console.log('Response from filterProducts:', response);
-        if (response.ok) {
-            const productos = await response.json();
-            // filtrar producto por precio
-            let productosFiltrados = productos;
-            if (minPrice !== null) {
-                productosFiltrados = productosFiltrados.filter(producto => producto.price >= minPrice);
-            }
-            if (maxPrice !== null) {
-                productosFiltrados = productosFiltrados.filter(producto => producto.price <= maxPrice);
-            }
-            renderProducts(productosFiltrados);
-        } else {
-            console.error('Error al obtener el productos:', await response.text());
-            document.getElementById('producto-grid').innerHTML = '<p class="text-center">No se pudo cargar el producto.</p>';
+        // Usamos el endpoint público que ya existe para las categorías
+        const response = await fetch(`${API_BASE_URL}/categorias/`);
+        if (!response.ok) {
+            throw new Error('No se pudieron cargar las categorías.');
         }
+        const categories = await response.json();
+
+        // Generamos los enlaces para el menú de escritorio
+        let desktopLinksHtml = `<a href="index.html">Todos los Productos</a>`;
+        categories.forEach(category => {
+            desktopLinksHtml += `<a href="index.html?category_id=${category.id}">${category.name}</a>`;
+        });
+
+        // Generamos los enlaces para el menú móvil (con su clase específica)
+        let mobileLinksHtml = `<a href="index.html" class="mobile-nav-link">Todos los Productos</a>`;
+        categories.forEach(category => {
+            mobileLinksHtml += `<a href="index.html?category_id=${category.id}" class="mobile-nav-link">${category.name}</a>`;
+        });
+
+        // Poblamos los contenedores si existen
+        if (desktopNavContainer) {
+            desktopNavContainer.innerHTML = desktopLinksHtml;
+        }
+        if (mobileNavContainer) {
+            mobileNavContainer.innerHTML = mobileLinksHtml;
+        }
+
     } catch (error) {
-        console.error('Error de red:', error);
-        document.getElementById('producto-grid').innerHTML = '<p class="text-center">Error de conexión. No se pudo cargar el producto.</p>';
+        console.error('Error al cargar categorías en la navegación:', error);
+        navContainer.innerHTML = '<a href="index.html">Productos</a>'; // Fallback
     }
 }
+
+async function loadFilterOptions() {
+    const categoryContainer = document.getElementById('category-filters-container');
+    const brandContainer = document.getElementById('brand-filters-container');
+
+    // Cargar Categorías
+    if (categoryContainer) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/categorias/`);
+            const categories = await response.json();
+            // Añadimos la opción para ver todos los productos al principio
+            let categoriesHtml = `
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="category" value="" id="cat-filter-all" checked>
+                    <label class="form-check-label" for="cat-filter-all">Todos los Productos</label>
+                </div>`;
+            categories.forEach(cat => {
+                categoriesHtml += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="category" value="${cat.id}" id="cat-filter-${cat.id}">
+                        <label class="form-check-label" for="cat-filter-${cat.id}">${cat.name}</label>
+                    </div>`;
+            });
+            categoryContainer.innerHTML = categoriesHtml;
+        } catch (error) {
+            categoryContainer.innerHTML = '<p class="text-danger small">Error al cargar categorías.</p>';
+        }
+    }
+
+    // Cargar Marcas
+    if (brandContainer) {
+        try {
+            // No tenemos un endpoint de marcas, así que las extraemos de los productos.
+            // Esto es menos eficiente, pero funciona sin cambiar el backend.
+            const response = await fetch(`${API_BASE_URL}/productos/`);
+            const products = await response.json();
+            const brands = [...new Set(products.map(p => p.marca).filter(m => m && m !== 'N/A'))]; // Obtenemos marcas únicas y filtramos nulos o "N/A"
+            brands.sort(); // Ordenamos alfabéticamente
+
+            let brandsHtml = '';
+            brands.forEach(brand => {
+                const brandId = brand.toLowerCase().replace(/\s+/g, '-');
+                brandsHtml += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="${brand}" id="brand-filter-${brandId}">
+                        <label class="form-check-label" for="brand-filter-${brandId}">${brand}</label>
+                    </div>`;
+            });
+            brandContainer.innerHTML = brandsHtml;
+        } catch (error) {
+            brandContainer.innerHTML = '<p class="text-danger small">Error al cargar marcas.</p>';
+        }
+    }
+}
+
 
 // Obtener los datos de los input de filtro
 function obtenerFiltros() {
@@ -129,15 +198,57 @@ function obtenerFiltros() {
     const categoryInputs = document.querySelector('input[name="category"]:checked');
     console.log(categoryInputs);
     const categoryID = categoryInputs ? parseInt(categoryInputs.value) : null;
-    console.log('Categoria seleccionada:', categoryID);
+    
+    // Obtener marcas seleccionadas (checkboxes)
+    const brandInputs = document.querySelectorAll('#brand-filters-container input[type="checkbox"]:checked');
+    const selectedBrands = Array.from(brandInputs).map(input => input.value);
 
     const minPriceInput = document.getElementById('minprice-input');
     const minPrice = minPriceInput && minPriceInput.value ? parseFloat(minPriceInput.value) : null;
 
     const maxPriceInput = document.getElementById('maxprice-input');
     const maxPrice = maxPriceInput && maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
+    
+    // Llamamos a una versión mejorada de filtrarProductos
+    filtrarProductos({ categoryID, selectedBrands, minPrice, maxPrice });
+}
 
-    filtrarProductos(categoryID, minPrice, maxPrice);
+async function filtrarProductos({ categoryID = null, selectedBrands = [], minPrice = null, maxPrice = null }) {
+    console.log('Aplicando filtros:', { categoryID, selectedBrands, minPrice, maxPrice });
+    const productGrid = document.getElementById('product-grid');
+    productGrid.innerHTML = '<p class="text-center">Filtrando productos...</p>';
+
+    try {
+        // 1. Obtenemos todos los productos o los de una categoría específica si se seleccionó.
+        const url = categoryID 
+            ? `${API_BASE_URL}/productos/categoria/${categoryID}` 
+            : `${API_BASE_URL}/productos/`;
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('No se pudieron obtener los productos para filtrar.');
+        }
+        
+        let productos = await response.json();
+
+        // 2. Aplicamos los filtros adicionales (marcas y precio) en el frontend.
+        let productosFiltrados = productos.filter(producto => {
+            const pasaFiltroPrecioMin = minPrice === null || producto.price >= minPrice;
+            const pasaFiltroPrecioMax = maxPrice === null || producto.price <= maxPrice;
+            // Si no se seleccionaron marcas, este filtro se pasa para todos los productos.
+            // Si se seleccionaron, el producto debe pertenecer a una de ellas.
+            const pasaFiltroMarca = selectedBrands.length === 0 || selectedBrands.includes(producto.marca);
+
+            return pasaFiltroPrecioMin && pasaFiltroPrecioMax && pasaFiltroMarca;
+        });
+
+        // 3. Renderizamos los productos que pasaron todos los filtros.
+        renderProducts(productosFiltrados);
+
+    } catch (error) {
+        console.error('Error al filtrar productos:', error);
+        productGrid.innerHTML = `<p class="text-center text-danger">Error al aplicar los filtros: ${error.message}</p>`;
+    }
 }
 
 function renderProducts(products, searchTerm = '') {

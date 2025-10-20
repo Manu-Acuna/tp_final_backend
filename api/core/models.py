@@ -1,15 +1,17 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, Boolean, Date
 from sqlalchemy.orm import relationship
 from api.core.database import Base
 
 
 class Usuarios(Base):
     __tablename__ = "usuarios"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
+    id = Column(Integer, primary_key=True, index=True) 
     email = Column(String, unique=True, index=True)
     password = Column(String)
+    nombre = Column(String, nullable=False)
+    apellido = Column(String, nullable=False)
+    fecha_nacimiento = Column(Date, nullable=False)
+    is_admin = Column(Boolean, default=False, nullable=False)
 
     direccion = relationship("DireccionesEnvio", back_populates="usuario")
     carrito = relationship("Carrito", back_populates="usuario")
@@ -61,6 +63,7 @@ class Productos(Base):
     description = Column(String)
     price = Column(Integer)
     stock = Column(Integer)
+    marca = Column(String, nullable=False)
     image_url = Column(String, nullable=True) # Añadimos la URL de la imagen
     category_id = Column(Integer, ForeignKey("categorias.id"))
 
@@ -85,7 +88,7 @@ class PedidoDetalle(Base):
     price = Column(Float)
     order_id = Column(Integer, ForeignKey("pedidos.id"))
     product_id = Column(Integer, ForeignKey("productos.id"))
-    pedido = relationship("Pedidos", back_populates="pedido_detalle")
+    pedido = relationship("Pedidos", back_populates="detalles")
     producto = relationship("Productos", back_populates="pedido_detalle")
 
 
@@ -100,7 +103,7 @@ class Pedidos(Base):
     address_id = Column(Integer, ForeignKey("direccionesEnvio.id"))
 
     usuario = relationship("Usuarios", back_populates="pedido")
-    pedido_detalle = relationship("PedidoDetalle", back_populates="pedido")
+    detalles = relationship("PedidoDetalle", back_populates="pedido")
     direccion = relationship("DireccionesEnvio", back_populates="pedido")
     pagos = relationship("Pagos", back_populates="pedido")
 
