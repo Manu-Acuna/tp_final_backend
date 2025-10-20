@@ -44,7 +44,8 @@ async def export_products_to_txt():
                     product_data = {
                         "name": producto.name,
                         "description": producto.description,
-                        "price": float(producto.price), # Convertimos a float para que sea compatible con JSON
+                        "price": float(producto.price),
+                        "marca": producto.marca,
                         "stock": producto.stock,
                         "image_url": producto.image_url,
                         "category_id": producto.category_id,

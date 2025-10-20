@@ -62,6 +62,7 @@ class Productos(Base):
     name = Column(String, unique=True, index=True)
     description = Column(String)
     price = Column(Integer)
+    marca = Column(String, nullable=False)
     stock = Column(Integer)
     image_url = Column(String, nullable=True) # Añadimos la URL de la imagen
     category_id = Column(Integer, ForeignKey("categorias.id"))
