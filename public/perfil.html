@@ -18,7 +18,7 @@
 	<!-- Placeholder para el carrito reutilizable -->
     <div id="cart-placeholder"></div>
 
-	<main class="container py-5">
+	<main class="container py-5" style="min-height: 500px;">
 		<div class="row">
 			<!-- Columna de Navegación -->
 			<div class="col-md-3">
@@ -132,7 +132,7 @@
 								<h5 class="mb-1">Pedido #${order.id}</h5>
 								<small>${new Date(order.date).toLocaleDateString()}</small>
 							</div>
-							<p class="mb-1">Total: <strong>${formatPrice(order.total)}</strong></p>
+							<p class="mb-1">Total: <strong>$${order.total.toFixed(2)}</strong></p>
 							<small>Estado: ${order.status}</small>
 						`;
 						ordersList.appendChild(orderItem);
